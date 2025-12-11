@@ -1,0 +1,14 @@
+# Build Directory and Files
+build/
+
+# VSCode
+.vscode/
+
+# Logs and runtime
+*.log
+logs/
+*.sqlite
+*.db
+
+# Clang-Format backup
+.clang-format
