@@ -11,7 +11,6 @@ endif()
 # --- Unit Test Executable ---
 add_executable(unit_tests
     test_main.cpp
-    test/scanner_tests.cpp  # Based on your image structure
 )
 
 # MSYS2/MinGW often needs Threads explicitly linked for GTest

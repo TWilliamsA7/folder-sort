@@ -1,7 +1,7 @@
 # --- Library Target ---
-add_library(folder_sort_lib STATIC
-    scanner.cpp
-)
+add_library(folder_sort_lib STATIC)
+
+add_subdirectory(core)
 
 # Define include directories
 # BUILD_INTERFACE allows headers to be found during build
@@ -32,7 +32,7 @@ target_link_libraries(folder_sort_lib PUBLIC
 )
 
 # --- Executable Target ---
-add_executable(folder-sort main.cpp)
+add_executable(folder-sort cli/main.cpp)
 
 target_link_libraries(folder-sort PRIVATE folder_sort_lib)
 
