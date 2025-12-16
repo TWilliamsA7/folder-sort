@@ -91,6 +91,7 @@ endif()
 add_subdirectory(src)
 
 if(BUILD_TESTS)
+    include(CTest)
     enable_testing()
     add_subdirectory(tests)
 endif()

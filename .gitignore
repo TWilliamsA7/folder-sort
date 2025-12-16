@@ -1,5 +1,14 @@
 # Build Directory and Files
 build/
+out/
+cmake-build-*/
+
+# --- CMake ---
+CMakeCache.txt
+CMakeFiles/
+cmake_install.cmake
+CTestTestfile.cmake
+Testing/
 
 # VSCode
 .vscode/
