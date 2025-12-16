@@ -9,7 +9,7 @@
 
 class MoveAction: public Action {
     public: 
-        MoveAction(std::filesystem::path destination);
+        MoveAction(FileInfo file, std::filesystem::path destination);
 
         ActionType type() const override;
         std::string describe() const override;
@@ -17,5 +17,6 @@ class MoveAction: public Action {
 
     private:
         std::filesystem::path destination_;
+        FileInfo file_;
 
 };
