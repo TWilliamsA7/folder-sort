@@ -7,5 +7,5 @@ DeleteAction::DeleteAction(FileInfo file) : Action(file) {}
 ActionType DeleteAction::type() const { return ActionType::DELETE; }
 
 std::string DeleteAction::describe() const {
-    return "Deleting" + file_.filename() + " from " + file_.path.string();
+    return "Deleting" + file_.filename() + " : " + file_.path.string();
 }

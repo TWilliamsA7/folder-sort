@@ -9,5 +9,5 @@ ActionType MoveAction::type() const { return ActionType::MOVE; }
 std::filesystem::path MoveAction::destination() const { return destination_; }
 
 std::string MoveAction::describe() const {
-    return "Moving " + file_.filename() + " from " + file_.path.string() + " to " + destination_.string();
+    return "Moving " + file_.filename() + " : " + file_.path.string() + " -> " + destination_.string();
 }
