@@ -11,6 +11,9 @@ class ActionExecutor {
         // * Processor for Actions
         explicit ActionExecutor(bool dry_run = false);
 
+        // * Given an action, execute it
+        void execute(const Action&) const;
+
         // * Given a vector of actions, execute each action
         void execute(std::vector<std::unique_ptr<Action>>) const;
 
