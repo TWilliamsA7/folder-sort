@@ -7,7 +7,7 @@ RenameAction::RenameAction(FileInfo file, std::string new_name) : Action(file), 
 ActionType RenameAction::type() const { return ActionType::RENAME; }
 
 std::string RenameAction::describe() const {
-    return "Deleting" + file_.filename() + " from " + file_.path.string();
+    return "Renaming" + file_.filename() + " to " + new_name_;
 }
 
 std::string RenameAction::new_name() const { return new_name_; }
