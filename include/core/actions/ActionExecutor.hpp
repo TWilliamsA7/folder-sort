@@ -7,6 +7,14 @@
 
 class ActionExecutor {
     public:
+
+        // * Processor for Actions
+        explicit ActionExecutor(bool dry_run = false);
+
         // * Given a vector of actions, execute each action
         void execute(std::vector<std::unique_ptr<Action>>) const;
+
+    private:
+        // * If True, no actions will actually take place
+        bool dry_run_;
 };

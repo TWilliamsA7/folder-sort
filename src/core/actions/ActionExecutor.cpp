@@ -9,6 +9,9 @@
 #include <filesystem>
 #include <spdlog/spdlog.h>
 
+
+ActionExecutor::ActionExecutor(bool dry_run) : dry_run_(dry_run) {}
+
 void ActionExecutor::execute(std::vector<std::unique_ptr<Action>> actions) const {
     for (const auto& action : actions) {
         switch (action->type()) {
@@ -17,12 +20,16 @@ void ActionExecutor::execute(std::vector<std::unique_ptr<Action>> actions) const
             case ActionType::MOVE: {
                 const auto* move = static_cast<const MoveAction*>(action.get());
 
+                if (dry_run_) {
+                    spdlog::info("[DRY RUN] {}", move->describe());
+                    continue;
+                } else {
+                    spdlog::info(move->describe());
+                }
+
                 std::filesystem::path source = move->file().path;
                 std::filesystem::path destination = move->destination() / move->file().filename();
                 
-                spdlog::info("Moving {} -> {}", 
-                            source.string(),
-                            destination.string());
                 
                 std::filesystem::create_directories(destination.parent_path());
                 std::filesystem::rename(source, destination);
@@ -32,7 +39,14 @@ void ActionExecutor::execute(std::vector<std::unique_ptr<Action>> actions) const
             // Log deletion -> perform deletion
             case ActionType::DELETE: {
                 const auto* del = static_cast<const DeleteAction*>(action.get());
-                spdlog::info("Deleting {}", del->file().path.string());
+                
+                if (dry_run_) {
+                    spdlog::info("[DRY RUN] {}", del->describe());
+                    continue;
+                } else {
+                    spdlog::info(del->describe());
+                }
+
                 std::filesystem::remove(del->file().path);
                 break;
             }
@@ -40,7 +54,14 @@ void ActionExecutor::execute(std::vector<std::unique_ptr<Action>> actions) const
             // Log rename -> rebuild new path -> perform rename
             case ActionType::RENAME: {
                 const auto* ren = static_cast<const RenameAction*>(action.get());
-                spdlog::info("Renaming {} -> {}", ren->file().filename(), ren->new_name());
+                
+                if (dry_run_) {
+                    spdlog::info("[DRY RUN] {}", ren->describe());
+                    continue;
+                } else {
+                    spdlog::info(ren->describe());
+                }
+                
                 std::filesystem::rename(
                     ren->file().path,
                     ren->file().path.parent_path() / ren->new_name()
