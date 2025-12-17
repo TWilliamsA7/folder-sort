@@ -17,6 +17,5 @@ class MoveAction: public Action {
 
     private:
         std::filesystem::path destination_;
-        FileInfo file_;
 
 };

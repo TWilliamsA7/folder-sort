@@ -9,7 +9,7 @@
 
 class DeleteAction: public Action {
     public: 
-        DeleteAction();
+        DeleteAction(FileInfo file);
 
         ActionType type() const override;
         std::string describe() const override;
