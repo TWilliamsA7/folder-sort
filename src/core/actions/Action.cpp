@@ -2,8 +2,13 @@
 
 #include "core/actions/Action.hpp"
 
-Action::Action(FileInfo file) : file_(file) {}
+Action::Action() {}
+Action::Action(FileInfo* file) : file_(file) {}
 
-const FileInfo& Action::file() const {
+const void Action::setFile(FileInfo* file) {
+    file_ = std::move(file);
+}
+
+const FileInfo* Action::getFile() const {
     return file_;
 }

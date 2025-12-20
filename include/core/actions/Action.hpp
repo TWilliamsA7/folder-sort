@@ -3,7 +3,7 @@
 #pragma once
 
 #include <string>
-#include "../model/FileInfo.hpp"
+#include "core/model/FileInfo.hpp"
 
 enum class ActionType {
     MOVE,
@@ -14,13 +14,15 @@ enum class ActionType {
 class Action {
 
     public:
-        Action(FileInfo file);
+        Action();
+        Action(FileInfo* file);
 
         virtual ~Action() = default;
         virtual ActionType type() const = 0;
         virtual std::string describe() const = 0;
-        const FileInfo& file() const;
+        const void setFile(FileInfo* file);
+        const FileInfo* getFile() const;
 
-    protected: 
-        FileInfo file_;
+    private: 
+        FileInfo* file_ = nullptr;
 };
