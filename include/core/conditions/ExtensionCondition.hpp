@@ -8,14 +8,14 @@
 class ExtensionCondition : public Condition {
 
     public:
-        ExtensionCondition(std::string extension);
+        ExtensionCondition(std::vector<std::string> extensions);
 
         bool check(const FileInfo&) const override; 
 
         // * Extension is in the form ".***"
-        const std::string& extension() const;
+        const std::vector<std::string>& extensions() const;
 
     private:
         // * Extension is in the form ".***"
-        std::string extension_;
+        std::vector<std::string> extensions_;
 };

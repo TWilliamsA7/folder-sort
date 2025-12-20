@@ -4,17 +4,24 @@
 #include <algorithm>
 #include <cctype>
 
-ExtensionCondition::ExtensionCondition(std::string extension) : extension_(std::move(extension)) {
-    // Ensure extension starts with '.'
-    if (!extension_.empty() && extension_[0] != '.') {
-        extension_.insert(extension_.begin(), '.');
+ExtensionCondition::ExtensionCondition(std::vector<std::string> extensions) {
+    for (std::string& extension : extensions) {
+        if (!extension.empty() && extension[0] != '.') {
+            extension.insert(extension.begin(), '.');
+        }
+        std::transform(extension.begin(), extension.end(), extension.begin(), [](unsigned char c){ return std::tolower(c); });
     }
-    // Ensure extension is in lowercase
-    std::transform(extension_.begin(), extension_.end(), extension_.begin(), [](unsigned char c){ return std::tolower(c); });
+
+    extensions_ = extensions;
 }
 
 bool ExtensionCondition::check(const FileInfo& file) const {
-    return file.extension() == extension_;
+
+    for (std::string extension : extensions_) {
+        if (file.extension() == extension)
+            return true;
+    }
+    return false;
 }
 
-const std::string& ExtensionCondition::extension() const { return extension_; }
+const std::vector<std::string>& ExtensionCondition::extensions() const { return extensions_; }
