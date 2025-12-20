@@ -18,3 +18,6 @@ jobs:
 
       - name: Build
         run: cmake --build --preset ucrt64-debug
+
+      - name: Test
+        run: ctest --preset ucrt64-debug --verbose
