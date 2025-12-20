@@ -1,5 +1,6 @@
 target_sources(folder_sort_lib PRIVATE
-    ConfigLoader.cpp
+    ActionSpecFactory.cpp
     ConditionFactory.cpp
+    ConfigLoader.cpp
     RuleFactory.cpp
 )

@@ -12,4 +12,7 @@ enum class ActionType {
 struct ActionSpec {
     ActionType type;
     std::unordered_map<std::string, std::string> params;
+
+    ActionSpec(ActionType type_, std::unordered_map<std::string, std::string> params_) 
+        : type(type_), params(params_) {}; 
 };
