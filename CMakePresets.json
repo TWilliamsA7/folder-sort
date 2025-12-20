@@ -17,9 +17,6 @@
         "CMAKE_CXX_COMPILER": "C:/msys64/ucrt64/bin/g++.exe",
         "CMAKE_EXPORT_COMPILE_COMMANDS": "ON",
         "BUILD_TESTS": "ON"
-      },
-      "environment": {
-        "PATH": "C:/msys64/ucrt64/bin"
       }
     }
   ],
