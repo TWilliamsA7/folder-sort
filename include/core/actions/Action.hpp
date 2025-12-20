@@ -3,6 +3,7 @@
 #pragma once
 
 #include <string>
+#include <filesystem>
 #include "core/model/FileInfo.hpp"
 #include "core/actions/ActionSpec.hpp"
 
@@ -12,5 +13,6 @@ class Action {
 
         virtual ActionType type() const = 0;
         virtual std::string describe() const = 0;
+        virtual std::string describe(FileInfo& file) const = 0;
         virtual void execute(FileInfo& file) const = 0;
 };

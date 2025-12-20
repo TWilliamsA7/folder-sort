@@ -4,18 +4,20 @@
 
 MoveAction::MoveAction(std::filesystem::path destination) : Action(), destination_(destination) {};
 
-MoveAction::MoveAction(FileInfo* file, std::filesystem::path destination) : Action(file), destination_(std::move(destination)) {}
-
 ActionType MoveAction::type() const { return ActionType::MOVE; }
 
 std::filesystem::path MoveAction::destination() const { return destination_; }
 
 std::string MoveAction::describe() const {
-    const FileInfo* file = this->getFile();
+    return "Move to " + destination_.string();
+}
 
-    if (file == nullptr) {
-        return "[MOVE] File not specified";
-    }
+std::string MoveAction::describe(FileInfo& file) const {
+    return "Move " + file.filename() + " to " + destination_.string();
+}
 
-    return "Moving " + file->filename() + " : " + file->path.string() + " -> " + destination_.string();
+void MoveAction::execute(FileInfo& file) const {
+    std::filesystem::path dest = destination_ / file.filename();
+    std::filesystem::create_directories(dest.parent_path());
+    std::filesystem::rename(file.path, dest);
 }
