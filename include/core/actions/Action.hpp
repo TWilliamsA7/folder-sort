@@ -4,25 +4,13 @@
 
 #include <string>
 #include "core/model/FileInfo.hpp"
-
-enum class ActionType {
-    MOVE,
-    RENAME,
-    DELETE
-};
+#include "core/actions/ActionSpec.hpp"
 
 class Action {
-
     public:
-        Action();
-        Action(FileInfo* file);
-
         virtual ~Action() = default;
+
         virtual ActionType type() const = 0;
         virtual std::string describe() const = 0;
-        const void setFile(FileInfo* file);
-        const FileInfo* getFile() const;
-
-    private: 
-        FileInfo* file_ = nullptr;
+        virtual void execute(FileInfo& file) const = 0;
 };
