@@ -10,11 +10,11 @@ std::string RenameAction::describe() const {
     return "Renaming [FILE] to " + new_name_;
 }
 
-std::string RenameAction::describe(FileInfo& file) const {
+std::string RenameAction::describe(const FileInfo& file) const {
     return "Renaming " + file.filename() + " to " + new_name_;
 }
 
-void RenameAction::execute(FileInfo& file) const {
+void RenameAction::execute(const FileInfo& file) const {
     std::filesystem::rename(
         file.path,
         file.path.parent_path() / new_name_

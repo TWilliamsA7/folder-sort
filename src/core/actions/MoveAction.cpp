@@ -12,11 +12,11 @@ std::string MoveAction::describe() const {
     return "Move to " + destination_.string();
 }
 
-std::string MoveAction::describe(FileInfo& file) const {
+std::string MoveAction::describe(const FileInfo& file) const {
     return "Move " + file.filename() + " to " + destination_.string();
 }
 
-void MoveAction::execute(FileInfo& file) const {
+void MoveAction::execute(const FileInfo& file) const {
     std::filesystem::path dest = destination_ / file.filename();
     std::filesystem::create_directories(dest.parent_path());
     std::filesystem::rename(file.path, dest);

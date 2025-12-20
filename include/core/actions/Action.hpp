@@ -13,6 +13,6 @@ class Action {
 
         virtual ActionType type() const = 0;
         virtual std::string describe() const = 0;
-        virtual std::string describe(FileInfo& file) const = 0;
-        virtual void execute(FileInfo& file) const = 0;
+        virtual std::string describe(const FileInfo& file) const = 0;
+        virtual void execute(const FileInfo& file) const = 0;
 };

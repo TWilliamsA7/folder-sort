@@ -10,10 +10,10 @@ std::string DeleteAction::describe() const {
     return "[DELETE]";
 };
 
-std::string DeleteAction::describe(FileInfo& file) const {
+std::string DeleteAction::describe(const FileInfo& file) const {
     return "Deleting " + file.path.string();
 };
 
-void DeleteAction::execute(FileInfo& file) const {
+void DeleteAction::execute(const FileInfo& file) const {
     std::filesystem::remove(file.path);
 }

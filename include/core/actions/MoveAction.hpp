@@ -11,8 +11,8 @@ class MoveAction: public Action {
 
         ActionType type() const override;
         std::string describe() const override;
-        std::string describe(FileInfo& file) const override;
-        void execute(FileInfo& file) const override;
+        std::string describe(const FileInfo& file) const override;
+        void execute(const FileInfo& file) const override;
 
         std::filesystem::path destination() const;
 
