@@ -30,3 +30,6 @@ std::vector<std::unique_ptr<Action>> ExtensionRule::apply(const FileInfo& file) 
 
     return actions;
 }
+
+const std::string& ExtensionRule::extension() const { return extension_; }
+const std::filesystem::path& ExtensionRule::destination() const { return destination_; }

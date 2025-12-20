@@ -2,30 +2,35 @@
   "version": 6,
   "cmakeMinimumRequired": {
     "major": 3,
-    "minor": 20,
+    "minor": 24,
     "patch": 0
   },
   "configurePresets": [
     {
-      "name": "windows-debug",
-      "displayName": "Windows Debug (Ninja)",
+      "name": "ucrt64-debug",
+      "displayName": "MSYS2 UCRT64 Debug",
       "generator": "Ninja",
       "binaryDir": "${sourceDir}/build",
       "cacheVariables": {
-        "CMAKE_BUILD_TYPE": "Debug"
+        "CMAKE_BUILD_TYPE": "Debug",
+        "CMAKE_EXPORT_COMPILE_COMMANDS": "ON",
+        "BUILD_TESTS": "ON"
       }
     }
   ],
   "buildPresets": [
     {
-      "name": "windows-debug",
-      "configurePreset": "windows-debug"
+      "name": "ucrt64-debug",
+      "configurePreset": "ucrt64-debug"
     }
   ],
   "testPresets": [
     {
-      "name": "windows-debug",
-      "configurePreset": "windows-debug"
+      "name": "ucrt64-debug",
+      "configurePreset": "ucrt64-debug",
+      "output": {
+        "outputOnFailure": true
+      }
     }
   ]
 }

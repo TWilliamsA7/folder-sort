@@ -11,11 +11,10 @@ jobs:
     runs-on: windows-latest
 
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Configure (CMake Preset)
-        run: cmake --preset windows-debug
+      - name: Configure
+        run: cmake --preset ucrt64-debug
 
       - name: Build
-        run: cmake --build --preset windows-debug
+        run: cmake --build --preset ucrt64-debug

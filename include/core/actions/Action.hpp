@@ -14,6 +14,8 @@ enum class ActionType {
 class Action {
 
     public:
+        Action(FileInfo file);
+
         virtual ~Action() = default;
         virtual ActionType type() const = 0;
         virtual std::string describe() const = 0;

@@ -8,9 +8,15 @@ if(NOT TARGET GTest::gtest_main)
     endif()
 endif()
 
+# Collect all test sources
+file(GLOB_RECURSE TEST_SOURCES
+    CONFIGURE_DEPENDS
+    *.cpp
+)
+
 # --- Unit Test Executable ---
 add_executable(unit_tests
-    test_main.cpp
+    ${TEST_SOURCES}
 )
 
 # MSYS2/MinGW often needs Threads explicitly linked for GTest
@@ -18,7 +24,7 @@ find_package(Threads REQUIRED)
 
 target_link_libraries(unit_tests PRIVATE 
     folder_sort_lib 
-    GTest::gtest_main
+    GTest::gtest
     Threads::Threads
 )
 
