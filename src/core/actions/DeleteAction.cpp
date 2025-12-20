@@ -2,10 +2,18 @@
 
 #include "core/actions/DeleteAction.hpp"
 
-DeleteAction::DeleteAction(FileInfo file) : Action(file) {}
+DeleteAction::DeleteAction() : Action() {}
+
+DeleteAction::DeleteAction(FileInfo* file) : Action(file) {}
 
 ActionType DeleteAction::type() const { return ActionType::DELETE; }
 
 std::string DeleteAction::describe() const {
-    return "Deleting" + file_.filename() + " : " + file_.path.string();
+    const FileInfo* file = this->getFile();
+
+    if (file == nullptr) {
+        return "[DELETE] File not specified";
+    }
+
+    return "Deleting" + this->getFile()->filename() + " : " + this->getFile()->path.string();
 }
