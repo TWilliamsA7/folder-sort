@@ -13,8 +13,6 @@
       "binaryDir": "${sourceDir}/build",
       "cacheVariables": {
         "CMAKE_BUILD_TYPE": "Debug",
-        "CMAKE_C_COMPILER": "C:/msys64/ucrt64/bin/gcc.exe",
-        "CMAKE_CXX_COMPILER": "C:/msys64/ucrt64/bin/g++.exe",
         "CMAKE_EXPORT_COMPILE_COMMANDS": "ON",
         "BUILD_TESTS": "ON"
       }
