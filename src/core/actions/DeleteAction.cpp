@@ -4,16 +4,16 @@
 
 DeleteAction::DeleteAction() : Action() {}
 
-DeleteAction::DeleteAction(FileInfo* file) : Action(file) {}
-
 ActionType DeleteAction::type() const { return ActionType::DELETE; }
 
 std::string DeleteAction::describe() const {
-    const FileInfo* file = this->getFile();
+    return "[DELETE]";
+};
 
-    if (file == nullptr) {
-        return "[DELETE] File not specified";
-    }
+std::string DeleteAction::describe(FileInfo& file) const {
+    return "Deleting " + file.path.string();
+};
 
-    return "Deleting" + file->filename() + " : " + file->path.string();
+void DeleteAction::execute(FileInfo& file) const {
+    std::filesystem::remove(file.path);
 }

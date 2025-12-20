@@ -3,18 +3,22 @@
 #include "core/actions/RenameAction.hpp"
 
 RenameAction::RenameAction(std::string new_name) : Action(), new_name_(new_name) {}
-RenameAction::RenameAction(FileInfo* file, std::string new_name) : Action(file), new_name_(new_name) {}
 
 ActionType RenameAction::type() const { return ActionType::RENAME; }
 
 std::string RenameAction::describe() const {
-    const FileInfo* file = this->getFile();
+    return "Renaming [FILE] to " + new_name_;
+}
 
-    if (file == nullptr) {
-        return "[RENAME] file not specified";
-    }
+std::string RenameAction::describe(FileInfo& file) const {
+    return "Renaming " + file.filename() + " to " + new_name_;
+}
 
-    return "Renaming" + file->filename() + " -> " + new_name_;
+void RenameAction::execute(FileInfo& file) const {
+    std::filesystem::rename(
+        file.path,
+        file.path.parent_path() / new_name_
+    );
 }
 
 std::string RenameAction::new_name() const { return new_name_; }
