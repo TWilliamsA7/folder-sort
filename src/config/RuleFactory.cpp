@@ -12,14 +12,17 @@ std::vector<std::unique_ptr<Rule>> RuleFactory::buildRules(const YAML::Node& roo
             throw std::runtime_error("Each rule must have 'when' and 'then' properties");
         }
 
-        auto condition = ConditionFactory::build(ruleNode["when"]);
-        auto action = ActionSpecFactory::build(ruleNode["then"]);
+        std::vector<std::unique_ptr<Condition>> conditions = ConditionFactory::build(ruleNode["when"]);
+        std::vector<ActionSpec> actionSpecs;
+        for (const auto& actionNode : ruleNode["then"]) {
+            actionSpecs.push_back(ActionSpecFactory::build(actionNode));
+        }
 
         rules.push_back(
             std::make_unique<Rule>(
                 ruleNode["name"] ? ruleNode["name"].as<std::string>() : "",
-                std::move(condition),
-                std::move(action)
+                std::move(conditions),
+                std::move(actionSpecs)
             )
         );
     }

@@ -13,5 +13,5 @@
 
 class ConditionFactory {
     public:
-        static std::unique_ptr<Condition> build(const YAML::Node& node);
+        static std::vector<std::unique_ptr<Condition>> build(const YAML::Node& node);
 };
