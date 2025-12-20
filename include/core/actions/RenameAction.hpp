@@ -9,7 +9,8 @@
 
 class RenameAction: public Action {
     public: 
-        RenameAction(FileInfo file, std::string new_name);
+        RenameAction(std::string new_name);
+        RenameAction(FileInfo* file, std::string new_name);
 
         ActionType type() const override;
         std::string describe() const override;

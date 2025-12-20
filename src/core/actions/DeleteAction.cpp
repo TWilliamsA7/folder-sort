@@ -15,5 +15,5 @@ std::string DeleteAction::describe() const {
         return "[DELETE] File not specified";
     }
 
-    return "Deleting" + this->getFile()->filename() + " : " + this->getFile()->path.string();
+    return "Deleting" + file->filename() + " : " + file->path.string();
 }

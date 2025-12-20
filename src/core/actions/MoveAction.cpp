@@ -17,5 +17,5 @@ std::string MoveAction::describe() const {
         return "[MOVE] File not specified";
     }
 
-    return "Moving " + this->getFile()->filename() + " : " + this->getFile()->path.string() + " -> " + destination_.string();
+    return "Moving " + file->filename() + " : " + file->path.string() + " -> " + destination_.string();
 }
