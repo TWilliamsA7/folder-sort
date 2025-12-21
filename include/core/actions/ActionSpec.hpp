@@ -1,7 +1,10 @@
 // include/core/actions/ActionSpec.hpp
 
+#pragma once
+
 #include <string>
 #include <unordered_map>
+
 
 enum class ActionType {
     MOVE,

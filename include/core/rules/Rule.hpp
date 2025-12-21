@@ -1,5 +1,7 @@
 // include/core/rules/Rule.hpp
 
+#pragma once
+
 #include <memory>
 #include <vector>
 #include "core/conditions/Condition.hpp"
