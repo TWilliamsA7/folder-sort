@@ -1,4 +1,3 @@
 target_sources(folder_sort_lib PRIVATE
-    Rule.cpp
-    RuleEngine.cpp
+    ExtensionCondition.cpp
 )

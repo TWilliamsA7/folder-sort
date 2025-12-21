@@ -2,17 +2,18 @@
 
 #pragma once
 
-#include <string>
-#include <filesystem>
 #include "Action.hpp"
 
 
 class MoveAction: public Action {
     public: 
-        MoveAction(FileInfo file, std::filesystem::path destination);
+        MoveAction(std::filesystem::path destination);
 
         ActionType type() const override;
-        std::string describe() const override;
+        const std::string describe() const override;
+        const std::string describe(const FileInfo& file) const override;
+        void execute(const FileInfo& file) const override;
+
         std::filesystem::path destination() const;
 
     private:

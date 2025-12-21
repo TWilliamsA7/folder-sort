@@ -1,6 +1,7 @@
 // src/core/rules/RuleEngine.cpp
 
 #include "core/rules/RuleEngine.hpp"
+#include "core/actions/ActionFactory.hpp"
 
 void RuleEngine::addRule(std::unique_ptr<Rule> rule) {
     rules_.push_back(std::move(rule));
@@ -8,16 +9,15 @@ void RuleEngine::addRule(std::unique_ptr<Rule> rule) {
 
 std::vector<std::unique_ptr<Action>> RuleEngine::evaluate(const FileInfo& file) const {
 
-    std::vector<std::unique_ptr<Action>> actions;
+    std::vector<std::unique_ptr<Action>> result;
 
     for (const auto& rule : rules_) {
-        std::vector<std::unique_ptr<Action>> rule_actions = rule->apply(file);
-        actions.insert(
-            actions.end(), 
-            std::make_move_iterator(rule_actions.begin()), 
-            std::make_move_iterator(rule_actions.end())
-        );
-    }
+        if (!rule->matches(file)) continue;
 
-    return actions;
+        for (const auto& spec : rule->actions()) {
+            result.push_back(ActionFactory::create(spec));
+        }
+    }
+    
+    return result;
 }

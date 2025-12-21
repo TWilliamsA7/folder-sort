@@ -14,10 +14,10 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Configure
-        run: cmake --preset ucrt64-debug
+        run: cmake --preset ucrt64-ci
 
       - name: Build
-        run: cmake --build --preset ucrt64-debug
+        run: cmake --build --preset ci
 
       - name: Test
-        run: ctest --preset ucrt64-debug --verbose
+        run: ctest --preset ci --verbose

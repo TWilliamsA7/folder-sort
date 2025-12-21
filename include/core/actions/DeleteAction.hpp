@@ -2,16 +2,15 @@
 
 #pragma once
 
-#include <string>
-#include <filesystem>
 #include "Action.hpp"
-
 
 class DeleteAction: public Action {
     public: 
-        DeleteAction(FileInfo file);
+        DeleteAction();
 
         ActionType type() const override;
-        std::string describe() const override;
+        const std::string describe() const override;
+        const std::string describe(const FileInfo& file) const override;
+        void execute(const FileInfo& file) const override;
 
 };
