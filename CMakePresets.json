@@ -7,27 +7,50 @@
   },
   "configurePresets": [
     {
-      "name": "ucrt64-debug",
-      "displayName": "MSYS2 UCRT64 Debug",
+      "name": "ucrt64-base",
+      "hidden": true,
       "generator": "Ninja",
-      "binaryDir": "${sourceDir}/build",
       "cacheVariables": {
         "CMAKE_BUILD_TYPE": "Debug",
-        "CMAKE_EXPORT_COMPILE_COMMANDS": "ON",
-        "BUILD_TESTS": "ON"
+        "BUILD_TESTS": "ON",
+        "CMAKE_EXPORT_COMPILE_COMMANDS": "ON"
       }
+    },
+    {
+      "name": "ucrt64-vscode",
+      "displayName": "MSYS2 UCRT64 (VS Code)",
+      "inherits": "ucrt64-base",
+      "binaryDir": "${sourceDir}/build",
+      "cacheVariables": {
+        "CMAKE_C_COMPILER": "C:/msys64/ucrt64/bin/gcc.exe",
+        "CMAKE_CXX_COMPILER": "C:/msys64/ucrt64/bin/g++.exe"
+      },
+      "environment": {
+        "PATH": "C:/msys64/ucrt64/bin"
+      }
+    },
+    {
+      "name": "ucrt64-ci",
+      "displayName": "MSYS2 UCRT64 (CI)",
+      "inherits": "ucrt64-base",
+      "binaryDir": "${sourceDir}/build"
     }
   ],
   "buildPresets": [
-    {
-      "name": "ucrt64-debug",
-      "configurePreset": "ucrt64-debug"
-    }
+    { "name": "vscode", "configurePreset": "ucrt64-vscode" },
+    { "name": "ci", "configurePreset": "ucrt64-ci" }
   ],
   "testPresets": [
     {
-      "name": "ucrt64-debug",
-      "configurePreset": "ucrt64-debug",
+      "name": "vscode",
+      "configurePreset": "ucrt64-vscode",
+      "output": {
+        "outputOnFailure": true
+      }
+    },
+    {
+      "name": "ci",
+      "configurePreset": "ucrt64-ci",
       "output": {
         "outputOnFailure": true
       }
