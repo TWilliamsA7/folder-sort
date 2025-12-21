@@ -4,6 +4,8 @@
 
 #include <vector>
 #include <filesystem>
+#include <stdexcept>
+#include <Windows.h>
 #include "core/filesystem/ScanResponses.hpp"
 
 struct ScanOptions {
@@ -30,5 +32,6 @@ class FilesystemScanner {
     private:
         std::filesystem::path root_;
         ScanOptions options_;
+
 };
 
