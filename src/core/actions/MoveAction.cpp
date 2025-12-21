@@ -8,11 +8,11 @@ ActionType MoveAction::type() const { return ActionType::MOVE; }
 
 std::filesystem::path MoveAction::destination() const { return destination_; }
 
-std::string MoveAction::describe() const {
+const std::string MoveAction::describe() const {
     return "Move to " + destination_.string();
 }
 
-std::string MoveAction::describe(const FileInfo& file) const {
+const std::string MoveAction::describe(const FileInfo& file) const {
     return "Move " + file.filename() + " to " + destination_.string();
 }
 

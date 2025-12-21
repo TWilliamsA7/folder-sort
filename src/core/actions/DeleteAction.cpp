@@ -6,11 +6,11 @@ DeleteAction::DeleteAction() : Action() {}
 
 ActionType DeleteAction::type() const { return ActionType::DELETE; }
 
-std::string DeleteAction::describe() const {
+const std::string DeleteAction::describe() const {
     return "[DELETE]";
 };
 
-std::string DeleteAction::describe(const FileInfo& file) const {
+const std::string DeleteAction::describe(const FileInfo& file) const {
     return "Deleting " + file.path.string();
 };
 

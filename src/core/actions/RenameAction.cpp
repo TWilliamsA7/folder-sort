@@ -6,11 +6,11 @@ RenameAction::RenameAction(std::string new_name) : Action(), new_name_(new_name)
 
 ActionType RenameAction::type() const { return ActionType::RENAME; }
 
-std::string RenameAction::describe() const {
+const std::string RenameAction::describe() const {
     return "Renaming [FILE] to " + new_name_;
 }
 
-std::string RenameAction::describe(const FileInfo& file) const {
+const std::string RenameAction::describe(const FileInfo& file) const {
     return "Renaming " + file.filename() + " to " + new_name_;
 }
 
