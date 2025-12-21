@@ -2,10 +2,6 @@
 
 #include "core/actions/ActionExecutor.hpp"
 
-#include <filesystem>
-#include <spdlog/spdlog.h>
-
-
 ActionExecutor::ActionExecutor(bool dry_run) : dry_run_(dry_run) {}
 
 void ActionExecutor::execute(const Action& action, const FileInfo& file) const {
