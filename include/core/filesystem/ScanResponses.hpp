@@ -1,7 +1,10 @@
 // include/core/filesystem/ScanResponses.hpp
 
+#pragma once
+
 #include <filesystem>
 #include <optional>
+#include <vector>
 #include <string>
 
 enum class ScanErrorType {
@@ -33,7 +36,7 @@ struct FileInfo {
     FileType type;
     std::optional<std::uintmax_t> size;
     std::optional<std::filesystem::file_time_type> last_modified;
-    
+
     std::string filename() const { return path.filename().string(); }
     std::string extension() const { return path.extension().string(); }
 };
