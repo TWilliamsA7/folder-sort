@@ -16,5 +16,4 @@ bool Rule::matches(const FileInfo& file) const {
 
 
 const std::string Rule::name() const { return name_; }
-const std::vector<std::unique_ptr<Condition>> Rule::conditions() const { return conditions_; }
 const std::vector<ActionSpec>& Rule::actions() const { return actions_; }

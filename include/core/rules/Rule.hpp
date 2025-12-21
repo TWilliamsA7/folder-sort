@@ -21,7 +21,6 @@ class Rule {
         bool matches(const FileInfo& file) const;
 
         const std::string name() const;
-        const std::vector<std::unique_ptr<Condition>> conditions() const;
         const std::vector<ActionSpec>& actions() const;
 
     private:
