@@ -6,6 +6,7 @@
 #include <filesystem>
 #include <stdexcept>
 #include <Windows.h>
+#include <spdlog/spdlog.h>
 #include "core/filesystem/ScanResponses.hpp"
 
 struct ScanOptions {

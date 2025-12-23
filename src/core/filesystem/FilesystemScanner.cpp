@@ -35,6 +35,9 @@ ScanErrorType map_error(const std::error_code& ec) {
     if (ec == errc::no_such_file_or_directory) {
         return ScanErrorType::NotFound;
     }
+    if (ec == errc::filename_too_long) {
+        return ScanErrorType::PathTooLong;
+    }
 
     return ScanErrorType::Unknown;
 }
@@ -74,41 +77,51 @@ ScanResult FilesystemScanner::scan() {
         dir_options |= std::filesystem::directory_options::follow_directory_symlink;
     }
 
-    // Initialize iterator
-    auto it = std::filesystem::recursive_directory_iterator(root_, dir_options, ec);
+    std::filesystem::recursive_directory_iterator it(root_, dir_options, ec);
+    std::filesystem::recursive_directory_iterator end;
     
     if (ec) {
         result.errors.push_back({root_, map_error(ec), ec});
         return result;
     }
 
-    auto end = std::filesystem::recursive_directory_iterator();
-
-    while (it != end) {
+    for (; it != end; ) {
         const auto& path = it->path();
         
-        // 1. Check for Hidden Files (Windows specific)
-        if (!options_.include_hidden && is_hidden(path)) {
-            if (it->is_directory()) {
-                it.disable_recursion_pending();
-            }
-            it.increment(ec); // Manually increment to skip
-            continue;
-        }
-
-        // 2. Determine Type
-        FileType type = get_file_type(*it);
-
-        // 3. Depth Control
+        // Depth Control
         if (options_.max_depth >= 0 && it.depth() > options_.max_depth) {
-            if (type == FileType::Directory) {
+            if (it->is_directory()) {
                 it.disable_recursion_pending();
             }
             it.increment(ec);
             continue;
         }
 
-        // 4. Decide if we should record this entry
+        // File Type
+        FileType type = get_file_type(*it);
+
+        // Symlink policy
+        if (type == FileType::Symlink && !options_.follow_symlinks) {
+            result.errors.push_back({
+                path,
+                ScanErrorType::ReparsePoint,
+                {}
+            });
+            it.disable_recursion_pending();
+            it.increment(ec);
+            continue;
+        }
+
+        // Hidden
+        if (!options_.include_hidden && is_hidden(path)) {
+            if (it->is_directory()) {
+                it.disable_recursion_pending();
+            }
+            it.increment(ec);
+            continue;
+        }
+
+        // Record Entry
         bool should_record = true;
         if (type == FileType::Directory && !options_.include_directories) {
             should_record = false;
@@ -116,27 +129,57 @@ ScanResult FilesystemScanner::scan() {
 
         if (should_record) {
             FileInfo info;
-            info.path = path;
             info.type = type;
+
+            // Path normalization
+            if (options_.normalize_paths) {
+                std::error_code norm_ec;
+                info.path = std::filesystem::weakly_canonical(path, norm_ec);
+                if (norm_ec) {
+                    info.path = path;
+                }
+            } else {
+                info.path = path;
+            }
 
             if (type == FileType::RegularFile) {
                 std::error_code size_ec;
-                auto size = std::filesystem::file_size(path, size_ec);
-                if (!size_ec) info.size = size;
+                info.size = std::filesystem::file_size(path, size_ec);
+                if (size_ec) {
+                    result.errors.push_back({
+                        path,
+                        map_error(size_ec),
+                        size_ec
+                    });
+
+                    if (!options_.allow_permission_errors)
+                        return result;
+                }
             }
             
-            // Add last modified time
+            // Last time modified
             std::error_code time_ec;
-            auto ftime = std::filesystem::last_write_time(path, time_ec);
-            if (!time_ec) info.last_modified = ftime;
+            info.last_modified = std::filesystem::last_write_time(path, time_ec);
+            if (time_ec) {
+                result.errors.push_back({
+                    path,
+                    map_error(time_ec),
+                    time_ec
+                });
+
+                if (!options_.allow_permission_errors)
+                    return result;
+            }
 
             result.files.push_back(std::move(info));
         }
 
-        // 5. Safe Increment
+        // Increment
         it.increment(ec);
         if (ec) {
-            result.errors.push_back({path, map_error(ec), ec});
+            result.errors.push_back({ path, map_error(ec), ec });
+            if (!options_.allow_permission_errors)
+                return result;
             ec.clear();
         }
     }
