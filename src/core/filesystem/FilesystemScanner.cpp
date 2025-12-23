@@ -42,14 +42,6 @@ ScanErrorType map_error(const std::error_code& ec) {
     return ScanErrorType::Unknown;
 }
 
-static bool is_hidden(const std::filesystem::path& path) {
-    DWORD attrs = GetFileAttributesW(path.c_str());
-    if (attrs == INVALID_FILE_ATTRIBUTES) {
-        return false;
-    }
-    return (attrs & FILE_ATTRIBUTE_HIDDEN) != 0;
-}
-
 static FileType get_file_type(const std::filesystem::directory_entry& entry) {
     std::error_code ec;
     auto status = entry.symlink_status(ec);
@@ -113,7 +105,7 @@ ScanResult FilesystemScanner::scan() {
         }
 
         // Hidden
-        if (!options_.include_hidden && is_hidden(path)) {
+        if (!options_.include_hidden && fs_platform::is_hidden(path)) {
             if (it->is_directory()) {
                 it.disable_recursion_pending();
             }

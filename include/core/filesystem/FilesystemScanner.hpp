@@ -5,9 +5,9 @@
 #include <vector>
 #include <filesystem>
 #include <stdexcept>
-#include <Windows.h>
 #include <spdlog/spdlog.h>
 #include "core/filesystem/ScanResponses.hpp"
+#include "core/filesystem/platform/FilesystemPlatform.hpp"
 
 struct ScanOptions {
     bool follow_symlinks = false;
