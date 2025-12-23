@@ -64,77 +64,81 @@ static FileType get_file_type(const std::filesystem::directory_entry& entry) {
 
 ScanResult FilesystemScanner::scan() {
     ScanResult result;
-
     std::error_code ec;
 
-    std::filesystem::directory_options dir_options =
+    // Use directory_options to handle basic permission issues at the OS level
+    std::filesystem::directory_options dir_options = 
         std::filesystem::directory_options::skip_permission_denied;
 
     if (options_.follow_symlinks) {
         dir_options |= std::filesystem::directory_options::follow_directory_symlink;
     }
 
-    std::filesystem::recursive_directory_iterator it(root_, dir_options, ec);
-    std::filesystem::recursive_directory_iterator end;
-
+    // Initialize iterator
+    auto it = std::filesystem::recursive_directory_iterator(root_, dir_options, ec);
+    
     if (ec) {
-        result.errors.push_back({
-            root_,
-            map_error(ec),
-            ec
-        });
+        result.errors.push_back({root_, map_error(ec), ec});
         return result;
     }
 
-    for (; it != end; it.increment(ec)) {
-        if (ec) {
-            result.errors.push_back({
-                it->path(),
-                map_error(ec),
-                ec
-            });
+    auto end = std::filesystem::recursive_directory_iterator();
 
-            ec.clear();
-            continue;
-        }
-
-        
+    while (it != end) {
         const auto& path = it->path();
         
-        // Hidden file behavior
+        // 1. Check for Hidden Files (Windows specific)
         if (!options_.include_hidden && is_hidden(path)) {
-            it.disable_recursion_pending();
+            if (it->is_directory()) {
+                it.disable_recursion_pending();
+            }
+            it.increment(ec); // Manually increment to skip
             continue;
         }
 
+        // 2. Determine Type
         FileType type = get_file_type(*it);
 
-        if (type == FileType::Symlink && !options_.follow_symlinks) {
-            it.disable_recursion_pending();
+        // 3. Depth Control
+        if (options_.max_depth >= 0 && it.depth() > options_.max_depth) {
+            if (type == FileType::Directory) {
+                it.disable_recursion_pending();
+            }
+            it.increment(ec);
             continue;
         }
 
-        // Depth control
-        if (it.depth() > static_cast<int>(options_.max_depth)) {
-            it.disable_recursion_pending();
-            continue;
+        // 4. Decide if we should record this entry
+        bool should_record = true;
+        if (type == FileType::Directory && !options_.include_directories) {
+            should_record = false;
         }
 
-        FileInfo info;
-        info.path = path;
-        info.type = type;
+        if (should_record) {
+            FileInfo info;
+            info.path = path;
+            info.type = type;
 
-        if (type == FileType::RegularFile) {
-            std::error_code size_ec;
-            auto size = std::filesystem::file_size(path, size_ec);
-            if (!size_ec) info.size = size;
-
+            if (type == FileType::RegularFile) {
+                std::error_code size_ec;
+                auto size = std::filesystem::file_size(path, size_ec);
+                if (!size_ec) info.size = size;
+            }
+            
+            // Add last modified time
             std::error_code time_ec;
-            auto time = std::filesystem::last_write_time(path, time_ec);
-            if (!time_ec) info.last_modified = time;
+            auto ftime = std::filesystem::last_write_time(path, time_ec);
+            if (!time_ec) info.last_modified = ftime;
+
+            result.files.push_back(std::move(info));
         }
 
-        result.files.push_back(std::move(info));
+        // 5. Safe Increment
+        it.increment(ec);
+        if (ec) {
+            result.errors.push_back({path, map_error(ec), ec});
+            ec.clear();
+        }
     }
 
     return result;

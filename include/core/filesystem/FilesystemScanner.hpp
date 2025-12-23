@@ -12,7 +12,7 @@ struct ScanOptions {
     bool follow_symlinks = false;
     bool include_hidden = false;
     bool allow_permission_errors = true;
-    size_t max_depth = SIZE_MAX;
+    int max_depth = -1;
 
     bool include_directories = false;
     bool normalize_paths = true;
