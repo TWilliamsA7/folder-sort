@@ -22,8 +22,20 @@ struct TestTree {
         return p;
     }
 
+    std::filesystem::path file(const std::filesystem::path& branch, const std::string& name) {
+        auto p = branch / name;
+        std::ofstream(p) << "x";
+        return p;
+    }
+
     std::filesystem::path dir(const std::string& name) {
         auto p = root / name;
+        std::filesystem::create_directories(p);
+        return p;
+    }
+
+    std::filesystem::path dir(const std::filesystem::path& branch, const std::string& name) {
+        auto p = branch / name;
         std::filesystem::create_directories(p);
         return p;
     }
