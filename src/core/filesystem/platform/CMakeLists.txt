@@ -1,0 +1,5 @@
+if (WIN32)
+    target_sources(folder_sort_lib PRIVATE FilesystemPlatform_win.cpp)
+else()
+    target_sources(folder_sort_lib PRIVATE FilesystemPlatform_posix.cpp)
+endif()
