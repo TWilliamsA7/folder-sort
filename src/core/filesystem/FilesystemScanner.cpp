@@ -62,8 +62,7 @@ ScanResult FilesystemScanner::scan() {
     std::error_code ec;
 
     // Use directory_options to handle basic permission issues at the OS level
-    std::filesystem::directory_options dir_options = 
-        std::filesystem::directory_options::skip_permission_denied;
+    std::filesystem::directory_options dir_options = std::filesystem::directory_options::none;
 
     if (options_.follow_symlinks) {
         dir_options |= std::filesystem::directory_options::follow_directory_symlink;
@@ -77,57 +76,54 @@ ScanResult FilesystemScanner::scan() {
         return result;
     }
 
-    for (; it != end; ) {
+    while (it != end) {
         std::filesystem::directory_entry entry;
 
-        // STEP 1: snapshot entry
+        // Snapshot Entry
         try {
-            entry = *it;   // ONLY dereference here
+            entry = *it;
         } catch (...) {
-            // Extremely defensive: should never happen, but POSIX can be brutal
             result.errors.push_back({ root_, ScanErrorType::Unknown, {} });
             break;
         }
 
         const auto current_path = entry.path();
+        bool skip_content = false;
 
-        // STEP 2: depth control
+        // Depth control
         if (options_.max_depth >= 0 && it.depth() > options_.max_depth) {
             if (entry.is_directory()) {
                 it.disable_recursion_pending();
             }
-            it.increment(ec);
-            continue;
+            skip_content = true;
         }
 
-        // STEP 3: file type
+        // STEP 3: File type
         FileType type = get_file_type(entry);
 
-        // STEP 4: symlink policy
-        if (type == FileType::Symlink && !options_.follow_symlinks) {
+        // Symlink policy
+        if (!skip_content && type == FileType::Symlink && !options_.follow_symlinks) {
             result.errors.push_back({
                 current_path,
                 ScanErrorType::ReparsePoint,
                 {}
             });
             it.disable_recursion_pending();
-            it.increment(ec);
-            continue;
+            skip_content = true;
         }
 
-        // STEP 5: hidden files
-        if (!options_.include_hidden && fs_platform::is_hidden(current_path)) {
+        // Hidden files
+        if (!skip_content && !options_.include_hidden && fs_platform::is_hidden(current_path)) {
             if (entry.is_directory()) {
                 it.disable_recursion_pending();
             }
-            it.increment(ec);
-            continue;
+           skip_content = true;
         }
 
-        // STEP 6: record entry
+        // Record Entry
         bool should_record = !(type == FileType::Directory && !options_.include_directories);
 
-        if (should_record) {
+        if (!skip_content && should_record) {
             FileInfo info;
             info.type = type;
             info.path = options_.normalize_paths

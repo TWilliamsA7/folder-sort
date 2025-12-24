@@ -37,7 +37,7 @@ TEST(ScannerPosix, RecordsPermissionDeniedError) {
     FilesystemScanner scanner(dir.root, opts);
     auto result = scanner.scan();
 
-    EXPECT_TRUE(result.has_errors());
+    ASSERT_TRUE(result.has_errors());
     EXPECT_EQ(result.errors[0].type, ScanErrorType::PermissionDenied);
 }
 
