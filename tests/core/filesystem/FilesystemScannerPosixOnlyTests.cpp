@@ -6,6 +6,7 @@
 #include <sys/stat.h>
 #include "core/filesystem/FilesystemScanner.hpp"
 #include "../tests/helpers/TestFilesystem.hpp"
+#include "../tests/helpers/posix/FileGuard.hpp"
 
 
 TEST(ScannerPosix, SkipsDotfilesByDefault) {
@@ -27,15 +28,13 @@ TEST(ScannerPosix, RecordsPermissionDeniedError) {
 
     auto blocked = dir.dir("blocked");
 
-    chmod(blocked.string().c_str(), 0000);
+    PosixPermGuard guard(blocked);
 
     ScanOptions opts;
     opts.allow_permission_errors = true;
 
     FilesystemScanner scanner(dir.root, opts);
     auto result = scanner.scan();
-
-    chmod(blocked.string().c_str(), 0755); // cleanup
 
     EXPECT_TRUE(result.has_errors());
     EXPECT_EQ(result.errors[0].type, ScanErrorType::PermissionDenied);
