@@ -3,6 +3,7 @@ add_library(folder_sort_lib STATIC)
 
 add_subdirectory(core)
 add_subdirectory(config)
+add_subdirectory(logging)
 
 # Define include directories
 # BUILD_INTERFACE allows headers to be found during build
