@@ -6,7 +6,7 @@ ActionExecutor::ActionExecutor(bool dry_run) : dry_run_(dry_run) {}
 
 void ActionExecutor::execute(const Action& action, const FileInfo& file) const {
     if (dry_run_) {
-        spdlog::info("[DRY RUN] {}", action.describe(file));
+        logging::Logger::Info(fmt::format("[DRY RUN] {}", action.describe(file)));
         return;
     }
 

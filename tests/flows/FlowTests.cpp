@@ -5,9 +5,10 @@
 #include "config/RuleFactory.hpp"
 #include "core/rules/RuleEngine.hpp"
 #include "core/actions/ActionExecutor.hpp"
+#include "../helpers/TestLogger.hpp"
 
-TEST(ConfigFlow, RuleTriggersActions) {
-    const char* yaml = R"(
+TEST_F(LoggerTest, RuleTriggersActions) {  
+  const char* yaml = R"(
         rules:
             - name: "Archive Text Documents"
               when:

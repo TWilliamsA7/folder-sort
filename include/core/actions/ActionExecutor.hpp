@@ -3,7 +3,7 @@
 #pragma once
 
 #include <vector>
-#include <spdlog/spdlog.h>
+#include "logging/Logger.hpp"
 #include "Action.hpp"
 
 class ActionExecutor {

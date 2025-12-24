@@ -5,7 +5,7 @@
 #include <vector>
 #include <filesystem>
 #include <stdexcept>
-#include <spdlog/spdlog.h>
+#include "logging/Logger.hpp"
 #include "core/filesystem/ScanResponses.hpp"
 #include "core/filesystem/platform/FilesystemPlatform.hpp"
 
