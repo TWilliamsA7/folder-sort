@@ -26,6 +26,9 @@ namespace logging {
                 bool logToConsole = true
             );
 
+            // Testing Initialization 
+            static void InitForTests(const std::string& logFilePath);
+
             static void Shutdown();
 
 

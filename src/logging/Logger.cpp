@@ -38,6 +38,24 @@ namespace logging {
         spdlog::register_logger(s_logger);
     }
 
+    void Logger::InitForTests(const std::string& logFilePath) {
+        std::vector<spdlog::sink_ptr> sinks;
+
+        auto fileSink =
+            std::make_shared<spdlog::sinks::basic_file_sink_mt>(logFilePath, true);
+
+        fileSink->set_pattern("[%Y-%m-%d %T] [%l] %v");
+        sinks.push_back(fileSink);
+
+        s_logger = std::make_shared<spdlog::logger>(
+            "test_logger", sinks.begin(), sinks.end());
+
+        s_logger->set_level(spdlog::level::trace);
+        s_logger->flush_on(spdlog::level::trace);
+
+        spdlog::register_logger(s_logger);
+    }
+
     void Logger::Shutdown() {
         spdlog::shutdown();
     }
