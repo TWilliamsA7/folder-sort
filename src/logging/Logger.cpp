@@ -57,7 +57,14 @@ namespace logging {
     }
 
     void Logger::Shutdown() {
+        if (s_logger) {
+            s_logger->flush();
+            spdlog::drop(s_logger->name());
+            s_logger.reset();
+        }
+
         spdlog::shutdown();
+        spdlog::drop_all();
     }
 
     void Logger::Trace(const std::string& msg) { s_logger->trace(msg); }

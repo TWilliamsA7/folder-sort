@@ -23,6 +23,10 @@ class LoggerTest : public ::testing::Test {
 
         void TearDown() override {
             logging::Logger::Shutdown();
-            std::filesystem::remove_all(logDir);
+
+            std::error_code ec;
+            std::filesystem::remove_all(logDir, ec);
+
+            ASSERT_FALSE(ec) << ec.message();
         }
 };
