@@ -78,7 +78,22 @@ ScanResult FilesystemScanner::scan() {
     }
 
     for (; it != end; ) {
-        const auto& path = it->path();
+        std::filesystem::path current_path;
+
+        if (!ec) {
+            current_path = it->path();
+        }
+
+        if (ec) {
+            result.errors.push_back({
+                current_path.empty() ? root_ : current_path,
+                map_error(ec),
+                ec
+            });
+            ec.clear();
+            it.increment(ec);
+            continue;
+        }
         
         // Depth Control
         if (options_.max_depth >= 0 && it.depth() > options_.max_depth) {
@@ -95,7 +110,7 @@ ScanResult FilesystemScanner::scan() {
         // Symlink policy
         if (type == FileType::Symlink && !options_.follow_symlinks) {
             result.errors.push_back({
-                path,
+                current_path,
                 ScanErrorType::ReparsePoint,
                 {}
             });
@@ -105,7 +120,7 @@ ScanResult FilesystemScanner::scan() {
         }
 
         // Hidden
-        if (!options_.include_hidden && fs_platform::is_hidden(path)) {
+        if (!options_.include_hidden && fs_platform::is_hidden(current_path)) {
             if (it->is_directory()) {
                 it.disable_recursion_pending();
             }
@@ -126,20 +141,20 @@ ScanResult FilesystemScanner::scan() {
             // Path normalization
             if (options_.normalize_paths) {
                 std::error_code norm_ec;
-                info.path = std::filesystem::weakly_canonical(path, norm_ec);
+                info.path = std::filesystem::weakly_canonical(current_path, norm_ec);
                 if (norm_ec) {
-                    info.path = path;
+                    info.path = current_path;
                 }
             } else {
-                info.path = path;
+                info.path = current_path;
             }
 
             if (type == FileType::RegularFile) {
                 std::error_code size_ec;
-                info.size = std::filesystem::file_size(path, size_ec);
+                info.size = std::filesystem::file_size(current_path, size_ec);
                 if (size_ec) {
                     result.errors.push_back({
-                        path,
+                        current_path,
                         map_error(size_ec),
                         size_ec
                     });
@@ -151,10 +166,10 @@ ScanResult FilesystemScanner::scan() {
             
             // Last time modified
             std::error_code time_ec;
-            info.last_modified = std::filesystem::last_write_time(path, time_ec);
+            info.last_modified = std::filesystem::last_write_time(current_path, time_ec);
             if (time_ec) {
                 result.errors.push_back({
-                    path,
+                    current_path,
                     map_error(time_ec),
                     time_ec
                 });
@@ -169,7 +184,7 @@ ScanResult FilesystemScanner::scan() {
         // Increment
         it.increment(ec);
         if (ec) {
-            result.errors.push_back({ path, map_error(ec), ec });
+            result.errors.push_back({ current_path, map_error(ec), ec });
             if (!options_.allow_permission_errors)
                 return result;
             ec.clear();
