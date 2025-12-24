@@ -32,6 +32,7 @@ TEST(ScannerPosix, RecordsPermissionDeniedError) {
 
     ScanOptions opts;
     opts.allow_permission_errors = true;
+    opts.normalize_paths = false;
 
     FilesystemScanner scanner(dir.root, opts);
     auto result = scanner.scan();

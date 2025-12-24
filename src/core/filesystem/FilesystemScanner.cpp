@@ -78,36 +78,32 @@ ScanResult FilesystemScanner::scan() {
     }
 
     for (; it != end; ) {
-        std::filesystem::path current_path;
+        std::filesystem::directory_entry entry;
 
-        if (!ec) {
-            current_path = it->path();
+        // STEP 1: snapshot entry
+        try {
+            entry = *it;   // ONLY dereference here
+        } catch (...) {
+            // Extremely defensive: should never happen, but POSIX can be brutal
+            result.errors.push_back({ root_, ScanErrorType::Unknown, {} });
+            break;
         }
 
-        if (ec) {
-            result.errors.push_back({
-                current_path.empty() ? root_ : current_path,
-                map_error(ec),
-                ec
-            });
-            ec.clear();
-            it.increment(ec);
-            continue;
-        }
-        
-        // Depth Control
+        const auto current_path = entry.path();
+
+        // STEP 2: depth control
         if (options_.max_depth >= 0 && it.depth() > options_.max_depth) {
-            if (it->is_directory()) {
+            if (entry.is_directory()) {
                 it.disable_recursion_pending();
             }
             it.increment(ec);
             continue;
         }
 
-        // File Type
-        FileType type = get_file_type(*it);
+        // STEP 3: file type
+        FileType type = get_file_type(entry);
 
-        // Symlink policy
+        // STEP 4: symlink policy
         if (type == FileType::Symlink && !options_.follow_symlinks) {
             result.errors.push_back({
                 current_path,
@@ -119,61 +115,39 @@ ScanResult FilesystemScanner::scan() {
             continue;
         }
 
-        // Hidden
+        // STEP 5: hidden files
         if (!options_.include_hidden && fs_platform::is_hidden(current_path)) {
-            if (it->is_directory()) {
+            if (entry.is_directory()) {
                 it.disable_recursion_pending();
             }
             it.increment(ec);
             continue;
         }
 
-        // Record Entry
-        bool should_record = true;
-        if (type == FileType::Directory && !options_.include_directories) {
-            should_record = false;
-        }
+        // STEP 6: record entry
+        bool should_record = !(type == FileType::Directory && !options_.include_directories);
 
         if (should_record) {
             FileInfo info;
             info.type = type;
-
-            // Path normalization
-            if (options_.normalize_paths) {
-                std::error_code norm_ec;
-                info.path = std::filesystem::weakly_canonical(current_path, norm_ec);
-                if (norm_ec) {
-                    info.path = current_path;
-                }
-            } else {
-                info.path = current_path;
-            }
+            info.path = options_.normalize_paths
+                ? std::filesystem::weakly_canonical(current_path)
+                : current_path;
 
             if (type == FileType::RegularFile) {
                 std::error_code size_ec;
                 info.size = std::filesystem::file_size(current_path, size_ec);
                 if (size_ec) {
-                    result.errors.push_back({
-                        current_path,
-                        map_error(size_ec),
-                        size_ec
-                    });
-
+                    result.errors.push_back({ current_path, map_error(size_ec), size_ec });
                     if (!options_.allow_permission_errors)
                         return result;
                 }
             }
-            
-            // Last time modified
+
             std::error_code time_ec;
             info.last_modified = std::filesystem::last_write_time(current_path, time_ec);
             if (time_ec) {
-                result.errors.push_back({
-                    current_path,
-                    map_error(time_ec),
-                    time_ec
-                });
-
+                result.errors.push_back({ current_path, map_error(time_ec), time_ec });
                 if (!options_.allow_permission_errors)
                     return result;
             }
@@ -181,7 +155,7 @@ ScanResult FilesystemScanner::scan() {
             result.files.push_back(std::move(info));
         }
 
-        // Increment
+        // STEP 7: advance
         it.increment(ec);
         if (ec) {
             result.errors.push_back({ current_path, map_error(ec), ec });
