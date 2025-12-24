@@ -4,7 +4,7 @@
 
 #include <string>
 #include <filesystem>
-#include "core/model/FileInfo.hpp"
+#include "core/filesystem/ScanResponses.hpp"
 #include "core/actions/ActionSpec.hpp"
 
 class Action {

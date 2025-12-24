@@ -5,7 +5,7 @@
 #include <vector>
 #include <memory>
 #include "core/actions/Action.hpp"
-#include "core/model/FileInfo.hpp"
+#include "core/filesystem/ScanResponses.hpp"
 
 class Condition {
     public:
