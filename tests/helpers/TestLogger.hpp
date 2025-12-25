@@ -6,10 +6,10 @@
 class LoggerTest : public ::testing::Test {
 protected:
     std::string logDir = "test_logs";
-    std::string logFile = "test_logs/test.log";
+    std::filesystem::path logFile;
 
     void SetUp() override {
-        logging::Logger::InitForTests(logDir);
+        logFile = logging::Logger::InitForTests(logDir);
     }
 
     void TearDown() override {

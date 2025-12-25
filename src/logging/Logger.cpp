@@ -1,13 +1,5 @@
 #include "logging/Logger.hpp"
 
-#include <filesystem>
-#include <stdexcept>
-#include <vector>
-
-#include <spdlog/spdlog.h>
-#include <spdlog/sinks/basic_file_sink.h>
-#include <spdlog/sinks/stdout_color_sinks.h>
-
 namespace logging {
 
     namespace {
@@ -17,42 +9,43 @@ namespace logging {
     }
 
 
-    void Logger::Init(const std::string& logDir) {
-        if (g_initialized) return;
+    std::filesystem::path Logger::InitInternal(const std::filesystem::path& logDir, const std::string& prefix, spdlog::level::level_enum level, bool includeConsole) {
+        // 1. Fix: Early return must return a value (an empty path or the current log path)
+        if (g_initialized) return {}; 
 
         std::filesystem::create_directories(logDir);
         g_sinks.clear();
 
-        auto consoleSink =
-            std::make_shared<spdlog::sinks::stdout_color_sink_mt>();
-        consoleSink->set_pattern("[%T] [%n] [%^%l%$] %v");
+        // 2. Generate Filename
+        auto now = std::chrono::system_clock::now();
+        // Use %H-%M-%S because colons (:) are illegal in Windows filenames
+        std::string filename = fmt::format("{}_{:%Y-%m-%d_%H-%M-%S}.log", prefix, now);
+        std::filesystem::path logPath = logDir / filename;
 
-        auto fileSink =
-            std::make_shared<spdlog::sinks::basic_file_sink_mt>(
-                logDir + "/app.log", true);
-        fileSink->set_pattern("[%Y-%m-%d %T] [%n] [%l] %v");
+        // 3. Setup File Sink
+        auto fileSink = std::make_shared<spdlog::sinks::basic_file_sink_mt>(logPath.string(), true);
+        fileSink->set_pattern(prefix == "test" ? "[%n] [%l] %v" : "[%Y-%m-%d %T] [%n] [%l] %v");
+        g_sinks.push_back(fileSink);
 
-        g_sinks = { consoleSink, fileSink };
-        g_level = spdlog::level::debug;
+        // 4. Setup Console Sink (Optional)
+        if (includeConsole) {
+            auto consoleSink = std::make_shared<spdlog::sinks::stdout_color_sink_mt>();
+            consoleSink->set_pattern("[%T] [%n] [%^%l%$] %v");
+            g_sinks.push_back(consoleSink);
+        }
 
+        g_level = level;
         g_initialized = true;
+        
+        return logPath;
     }
 
-    void Logger::InitForTests(const std::string& logDir) {
-        if (g_initialized) return;
+    std::filesystem::path Logger::Init(const std::filesystem::path& logDir) {
+        return InitInternal(logDir, "app", spdlog::level::debug, true);
+    }
 
-        std::filesystem::create_directories(logDir);
-        g_sinks.clear();
-
-        auto fileSink =
-            std::make_shared<spdlog::sinks::basic_file_sink_mt>(
-                logDir + "/test.log", true);
-        fileSink->set_pattern("[%n] [%l] %v");
-
-        g_sinks = { fileSink };
-        g_level = spdlog::level::trace;
-
-        g_initialized = true;
+    std::filesystem::path Logger::InitForTests(const std::filesystem::path& logDir) {
+        return InitInternal(logDir, "test", spdlog::level::trace, false);
     }
 
     std::shared_ptr<spdlog::logger> Logger::Get(const std::string& name) {
