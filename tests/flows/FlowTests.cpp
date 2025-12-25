@@ -5,9 +5,9 @@
 #include "config/RuleFactory.hpp"
 #include "core/rules/RuleEngine.hpp"
 #include "core/actions/ActionExecutor.hpp"
-#include "../helpers/TestLogger.hpp"
+#include "../tests/flows/FlowTest.hpp"
 
-TEST_F(LoggerTest, RuleTriggersActions) {  
+TEST_F(FlowTest, RuleTriggersActions) {  
   const char* yaml = R"(
         rules:
             - name: "Archive Text Documents"
@@ -39,4 +39,6 @@ TEST_F(LoggerTest, RuleTriggersActions) {
     ActionExecutor exec(/* dry_run=*/true);
 
     EXPECT_NO_THROW(exec.execute(std::move(actions), file));
+
+    EXPECT_TRUE(std::filesystem::exists(logFile));
 }
