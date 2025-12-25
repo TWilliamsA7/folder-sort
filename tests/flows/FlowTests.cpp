@@ -1,13 +1,14 @@
 // tests/flows/FlowTests.cpp
 
 #include <gtest/gtest.h>
+#include <fstream>
 
 #include "config/RuleFactory.hpp"
 #include "core/rules/RuleEngine.hpp"
 #include "core/actions/ActionExecutor.hpp"
-#include "../helpers/TestLogger.hpp"
+#include "../tests/flows/FlowTest.hpp"
 
-TEST_F(LoggerTest, RuleTriggersActions) {  
+TEST_F(FlowTest, RuleTriggersActions) {  
   const char* yaml = R"(
         rules:
             - name: "Archive Text Documents"
@@ -36,7 +37,21 @@ TEST_F(LoggerTest, RuleTriggersActions) {
     ASSERT_EQ(actions.size(), 1);
     ASSERT_EQ(actions.at(0)->type(), ActionType::MOVE);
 
+    const std::string descr = actions.at(0)->describe(file);
+
     ActionExecutor exec(/* dry_run=*/true);
 
     EXPECT_NO_THROW(exec.execute(std::move(actions), file));
+
+    EXPECT_TRUE(std::filesystem::exists(logFile));
+
+    std::ifstream in(logFile);
+    ASSERT_TRUE(in.is_open());
+
+    std::string contents(
+        (std::istreambuf_iterator<char>(in)),
+        std::istreambuf_iterator<char>());
+
+    EXPECT_NE(contents.find(descr), std::string::npos)
+        << "Actual contents: " << contents;
 }
