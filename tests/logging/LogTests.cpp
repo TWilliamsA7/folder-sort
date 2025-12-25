@@ -1,6 +1,6 @@
 // tests/logging/LogTests.cpp
 
-#include "../helpers/TestLogger.hpp"
+#include "../tests/logging/LoggerTest.hpp"
 #include <fstream>
 
 TEST_F(LoggerTest, LogFileIsCreated) {
