@@ -1,77 +1,84 @@
-// src/logging/Logger.cpp
-
 #include "logging/Logger.hpp"
 
+#include <filesystem>
+#include <stdexcept>
+#include <vector>
+
+#include <spdlog/spdlog.h>
+#include <spdlog/sinks/basic_file_sink.h>
+#include <spdlog/sinks/stdout_color_sinks.h>
+
 namespace logging {
-    
-    static std::shared_ptr<spdlog::logger> s_logger;
-    
-    static spdlog::level::level_enum ToSpdLevel(LogLevel level) {
-        switch (level) {
-            case LogLevel::Trace: return spdlog::level::trace;
-            case LogLevel::Debug: return spdlog::level::debug;
-            case LogLevel::Info: return spdlog::level::info;
-            case LogLevel::Warn: return spdlog::level::warn;
-            case LogLevel::Error: return spdlog::level::err;
-            case LogLevel::Critical: return spdlog::level::critical;
-            default: return spdlog::level::info;
-        }
+
+    namespace {
+        std::vector<spdlog::sink_ptr> g_sinks;
+        spdlog::level::level_enum g_level = spdlog::level::info;
+        bool g_initialized = false;
     }
 
-    void Logger::Init(const std::string& logFilePath, LogLevel level, bool logToConsole) {
-        std::vector<spdlog::sink_ptr> sinks;
 
-        if (logToConsole) {
-            auto consoleSink = std::make_shared<spdlog::sinks::stdout_color_sink_mt>();
-            consoleSink->set_pattern("[%T] [%^%l%$] %v");
-            sinks.push_back(consoleSink);
-        }
+    void Logger::Init(const std::string& logDir) {
+        if (g_initialized) return;
 
-        auto fileSink = std::make_shared<spdlog::sinks::basic_file_sink_mt>(logFilePath, true);
-        fileSink->set_pattern("[%Y-%m-%d %T] [%l] %v");
-        sinks.push_back(fileSink);
+        std::filesystem::create_directories(logDir);
+        g_sinks.clear();
 
-        s_logger = std::make_shared<spdlog::logger>("app", sinks.begin(), sinks.end());
-        s_logger->set_level(ToSpdLevel(level));
-        s_logger->flush_on(spdlog::level::warn);
-
-        spdlog::register_logger(s_logger);
-    }
-
-    void Logger::InitForTests(const std::string& logFilePath) {
-        std::vector<spdlog::sink_ptr> sinks;
+        auto consoleSink =
+            std::make_shared<spdlog::sinks::stdout_color_sink_mt>();
+        consoleSink->set_pattern("[%T] [%n] [%^%l%$] %v");
 
         auto fileSink =
-            std::make_shared<spdlog::sinks::basic_file_sink_mt>(logFilePath, true);
+            std::make_shared<spdlog::sinks::basic_file_sink_mt>(
+                logDir + "/app.log", true);
+        fileSink->set_pattern("[%Y-%m-%d %T] [%n] [%l] %v");
 
-        fileSink->set_pattern("[%Y-%m-%d %T] [%l] %v");
-        sinks.push_back(fileSink);
+        g_sinks = { consoleSink, fileSink };
+        g_level = spdlog::level::debug;
 
-        s_logger = std::make_shared<spdlog::logger>(
-            "test_logger", sinks.begin(), sinks.end());
-
-        s_logger->set_level(spdlog::level::trace);
-        s_logger->flush_on(spdlog::level::trace);
-
-        spdlog::register_logger(s_logger);
+        g_initialized = true;
     }
 
-    void Logger::Shutdown() {
-        if (s_logger) {
-            s_logger->flush();
-            spdlog::drop(s_logger->name());
-            s_logger.reset();
+    void Logger::InitForTests(const std::string& logDir) {
+        if (g_initialized) return;
+
+        std::filesystem::create_directories(logDir);
+        g_sinks.clear();
+
+        auto fileSink =
+            std::make_shared<spdlog::sinks::basic_file_sink_mt>(
+                logDir + "/test.log", true);
+        fileSink->set_pattern("[%n] [%l] %v");
+
+        g_sinks = { fileSink };
+        g_level = spdlog::level::trace;
+
+        g_initialized = true;
+    }
+
+    std::shared_ptr<spdlog::logger> Logger::Get(const std::string& name) {
+        if (!g_initialized) {
+            throw std::runtime_error("Logger::Init must be called first");
         }
 
-        spdlog::shutdown();
-        spdlog::drop_all();
+        if (auto existing = spdlog::get(name)) {
+            return existing;
+        }
+
+        auto logger = std::make_shared<spdlog::logger>(
+            name, g_sinks.begin(), g_sinks.end());
+
+        logger->set_level(g_level);
+        logger->flush_on(spdlog::level::trace);
+
+        spdlog::register_logger(logger);
+        return logger;
     }
 
-    void Logger::Trace(const std::string& msg) { s_logger->trace(msg); }
-    void Logger::Debug(const std::string& msg) { s_logger->debug(msg); }
-    void Logger::Info(const std::string& msg)  { s_logger->info(msg); }
-    void Logger::Warn(const std::string& msg)  { s_logger->warn(msg); }
-    void Logger::Error(const std::string& msg) { s_logger->error(msg); }
-    void Logger::Critical(const std::string& msg) { s_logger->critical(msg); }
 
-}
+    void Logger::Shutdown() {
+        spdlog::drop_all();  
+        g_sinks.clear();
+        g_initialized = false;
+    }
+
+} // namespace logging

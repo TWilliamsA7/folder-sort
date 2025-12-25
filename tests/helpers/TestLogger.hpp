@@ -1,32 +1,19 @@
-// tests/helpers/TestLogger.hpp
-
 #include <gtest/gtest.h>
-#include "logging/Logger.hpp"
 #include <filesystem>
 
+#include "logging/Logger.hpp"
+
 class LoggerTest : public ::testing::Test {
-    protected:
-        std::string logDir;
-        std::string logFile;
+protected:
+    std::string logDir = "test_logs";
+    std::string logFile = "test_logs/test.log";
 
-        void SetUp() override {
-            logDir = "test_logs";
-            logFile = fmt::format(
-                "{}/logger_test_{}.log",
-                logDir,
-                ::testing::UnitTest::GetInstance()->random_seed()
-            );
+    void SetUp() override {
+        logging::Logger::InitForTests(logDir);
+    }
 
-            std::filesystem::create_directories(logDir);
-            logging::Logger::InitForTests(logFile);
-        }
-
-        void TearDown() override {
-            logging::Logger::Shutdown();
-
-            std::error_code ec;
-            std::filesystem::remove_all(logDir, ec);
-
-            ASSERT_FALSE(ec) << ec.message();
-        }
+    void TearDown() override {
+        logging::Logger::Shutdown();
+        std::filesystem::remove_all(logDir);
+    }
 };
