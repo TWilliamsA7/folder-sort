@@ -173,9 +173,43 @@ TEST_F(FilesystemScannerTest, CreatesLogs) {
 
     ScanOptions ops;
     ops.include_directories = true;
+    ops.logging = true;
     ops.max_depth = 0;
     FilesystemScanner scanner(temp.root, ops);
     auto result = scanner.scan();
 
     ASSERT_TRUE(std::filesystem::exists(logFile));
+
+    std::ifstream in(logFile);
+    ASSERT_TRUE(in.is_open());
+
+    std::string contents(
+        (std::istreambuf_iterator<char>(in)),
+        std::istreambuf_iterator<char>());
+
+    EXPECT_NE(contents.length(), 0);
+}
+
+TEST_F(FilesystemScannerTest, DoesNotCreateLogsOnRequest) {
+    auto temp = TestTree("find_files");
+    temp.file("a.txt");
+    auto br = temp.dir("dir");
+    temp.file(br, "b.txt");
+
+    ScanOptions ops;
+    ops.include_directories = true;
+    ops.logging = false;
+    FilesystemScanner scanner(temp.root, ops);
+    auto result = scanner.scan();
+
+    ASSERT_TRUE(std::filesystem::exists(logFile));
+
+    std::ifstream in(logFile);
+    ASSERT_TRUE(in.is_open());
+
+    std::string contents(
+        (std::istreambuf_iterator<char>(in)),
+        std::istreambuf_iterator<char>());
+
+    EXPECT_EQ(contents.length(), 0);
 }

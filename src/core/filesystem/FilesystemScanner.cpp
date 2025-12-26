@@ -26,8 +26,11 @@ FilesystemScanner::FilesystemScanner (
         throw std::runtime_error("Root path is not a directory");
     }
 
-    auto log = logging::Logger::Get(kLoggerName);
-    log->info("Initialized Filesystem Scanner on root: {}", canonical.string());
+
+    if (options.logging) {
+        auto log = logging::Logger::Get(kLoggerName);
+        log->info("Initialized Filesystem Scanner on root: {}", canonical.string());
+    }
     root_ = canonical;
 }
 
@@ -66,7 +69,8 @@ static FileType get_file_type(const std::filesystem::directory_entry& entry) {
 ScanResult FilesystemScanner::scan() {
     ScanResult result;
     std::error_code ec;
-    auto log = logging::Logger::Get(kLoggerName);
+    
+    auto log = options_.logging ? logging::Logger::Get(kLoggerName) : nullptr;
 
     // Use directory_options to handle basic permission issues at the OS level
     std::filesystem::directory_options dir_options = std::filesystem::directory_options::none;
@@ -79,7 +83,7 @@ ScanResult FilesystemScanner::scan() {
     std::filesystem::recursive_directory_iterator end;
     
     if (ec) {
-        log->error("Failed to initialize directory pointer: {}", ec.message());
+        if (log) log->error("Failed to initialize directory pointer: {}", ec.message());
         result.errors.push_back({root_, map_error(ec), ec});
         return result;
     }
@@ -91,7 +95,7 @@ ScanResult FilesystemScanner::scan() {
         try {
             entry = *it;
         } catch (...) {
-            log->error("Failed to open filesystem entry due to dereference of invalid pointer");
+            if (log) log->error("Failed to open filesystem entry due to dereference of invalid pointer");
             result.errors.push_back({ root_, ScanErrorType::Unknown, {} });
             break;
         }
@@ -101,7 +105,7 @@ ScanResult FilesystemScanner::scan() {
 
         // Depth control
         if (options_.max_depth >= 0 && it.depth() > options_.max_depth) {
-            log->info("Skipped Entry {} | Exceeded Maximum Scan Depth", current_path.string());
+            if (log) log->info("Skipped Entry {} | Exceeded Maximum Scan Depth", current_path.string());
             if (entry.is_directory()) {
                 it.disable_recursion_pending();
             }
@@ -113,7 +117,7 @@ ScanResult FilesystemScanner::scan() {
 
         // Symlink policy
         if (!skip_content && type == FileType::Symlink && !options_.follow_symlinks) {
-            log->warn("Skipped Entry {} | Encountered Symlink", current_path.string());
+            if (log) log->warn("Skipped Entry {} | Encountered Symlink", current_path.string());
             result.errors.push_back({
                 current_path,
                 ScanErrorType::ReparsePoint,
@@ -125,7 +129,7 @@ ScanResult FilesystemScanner::scan() {
 
         // Hidden files
         if (!skip_content && !options_.include_hidden && fs_platform::is_hidden(current_path)) {
-            log->info("Skipped Entry {} | Entry is Hidden", current_path.string());
+            if (log) log->info("Skipped Entry {} | Entry is Hidden", current_path.string());
             if (entry.is_directory()) {
                 it.disable_recursion_pending();
             }
@@ -146,7 +150,7 @@ ScanResult FilesystemScanner::scan() {
                 std::error_code size_ec;
                 info.size = std::filesystem::file_size(current_path, size_ec);
                 if (size_ec) {
-                    log->warn("Entry {} | Failed to read size | {}", current_path.string(), size_ec.message());
+                    if (log) log->warn("Entry {} | Failed to read size | {}", current_path.string(), size_ec.message());
                     result.errors.push_back({ current_path, map_error(size_ec), size_ec });
                     if (!options_.allow_permission_errors)
                         return result;
@@ -156,20 +160,20 @@ ScanResult FilesystemScanner::scan() {
             std::error_code time_ec;
             info.last_modified = std::filesystem::last_write_time(current_path, time_ec);
             if (time_ec) {
-                log->warn("Entry {} | Failed to last write time | {}", current_path.string(), time_ec.message());
+                if (log) log->warn("Entry {} | Failed to last write time | {}", current_path.string(), time_ec.message());
                 result.errors.push_back({ current_path, map_error(time_ec), time_ec });
                 if (!options_.allow_permission_errors)
                     return result;
             }
 
-            log->info("Scanned Entry {}", current_path.string());
+            if (log) log->info("Scanned Entry {}", current_path.string());
             result.files.push_back(std::move(info));
         }
 
         // STEP 7: advance
         it.increment(ec);
         if (ec) {
-            log->error("Error occurred during traversal: {}", ec.message());
+            if (log) log->error("Error occurred during traversal: {}", ec.message());
             result.errors.push_back({ current_path, map_error(ec), ec });
             if (!options_.allow_permission_errors)
                 return result;
@@ -177,6 +181,6 @@ ScanResult FilesystemScanner::scan() {
         }
     }
 
-    log->info("Completed Scan");
+    if (log) log->info("Completed Scan");
     return result;
 }
