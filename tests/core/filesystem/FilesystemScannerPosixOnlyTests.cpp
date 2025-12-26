@@ -7,9 +7,10 @@
 #include "core/filesystem/FilesystemScanner.hpp"
 #include "../tests/helpers/TestFilesystem.hpp"
 #include "../tests/helpers/posix/FileGuard.hpp"
+#include "../tests/core/filesystem/FilesystemScannerTest.hpp"
 
 
-TEST(ScannerPosix, SkipsDotfilesByDefault) {
+TEST_F(FilesystemScannerTest, SkipsDotfilesByDefault) {
     TestTree dir("scanner_posix_hidden");
 
     dir.file(".secret");
@@ -23,7 +24,7 @@ TEST(ScannerPosix, SkipsDotfilesByDefault) {
     EXPECT_TRUE(result.files.empty());
 }
 
-TEST(ScannerPosix, RecordsPermissionDeniedError) {
+TEST_F(FilesystemScannerTest, RecordsPermissionDeniedError) {
     TestTree dir("scanner_posix_perm");
 
     auto blocked = dir.dir("blocked");

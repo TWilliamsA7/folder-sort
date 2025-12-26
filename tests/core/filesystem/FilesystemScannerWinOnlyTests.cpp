@@ -6,8 +6,9 @@
 #include <windows.h>
 #include "../tests/helpers/TestFilesystem.hpp"
 #include "core/filesystem/FilesystemScanner.hpp"
+#include "../tests/core/filesystem/FilesystemScannerTest.hpp"
 
-TEST(ScannerWindowsTests, SkipsHiddenFilesByDefault) {
+TEST_F(FilesystemScannerTest, SkipsHiddenFilesByDefault) {
     TestTree dir("scanner_win_hidden");
 
     auto hidden = dir.file("hidden.txt");
@@ -23,7 +24,7 @@ TEST(ScannerWindowsTests, SkipsHiddenFilesByDefault) {
 }
 
 
-TEST(ScannerWindowsTests, IncludesHiddenFilesWhenRequested) {
+TEST_F(FilesystemScannerTest, IncludesHiddenFilesWhenRequested) {
     TestTree dir("scanner_win_hidden");
 
     auto hidden = dir.file("hidden.txt");
