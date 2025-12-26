@@ -10,7 +10,7 @@ class ActionExecutor {
     public:
 
         // * Processor for Actions
-        explicit ActionExecutor(bool dry_run = false);
+        explicit ActionExecutor(bool dry_run = false, bool verbose = false);
 
         // * Given an action, execute it
         void execute(const Action&, const FileInfo&) const;
@@ -21,4 +21,5 @@ class ActionExecutor {
     private:
         // * If True, no actions will actually take place
         bool dry_run_;
+        bool verbose_;
 };

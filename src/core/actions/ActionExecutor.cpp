@@ -6,16 +6,21 @@ namespace {
     const char *kLoggerName = "app.actions.executor";
 }
 
-ActionExecutor::ActionExecutor(bool dry_run) : dry_run_(dry_run) {
-    auto log = logging::Logger::Get(kLoggerName);
+ActionExecutor::ActionExecutor(bool dry_run, bool verbose) : dry_run_(dry_run), verbose_(verbose) {
+    auto log = verbose ? logging::Logger::Get(kLoggerName) : nullptr;
 }
 
 void ActionExecutor::execute(const Action& action, const FileInfo& file) const {
-    auto log = logging::Logger::Get(kLoggerName);
-
-    if (dry_run_) {
-        log->info("[DRY RUN] {}", action.describe(file));
-        return;
+    
+    if (verbose_) {
+        auto log = logging::Logger::Get(kLoggerName);
+        
+        if (dry_run_) {
+            log->info("[DRY RUN] {}", action.describe(file));
+            return;
+        } else {
+            log->info(action.describe(file));
+        }
     }
 
     action.execute(file);
