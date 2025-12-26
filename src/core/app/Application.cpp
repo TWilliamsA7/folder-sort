@@ -8,7 +8,7 @@ Application::Application(AppConfig config) : config_(config) {}
 int Application::run() {
 
     if (config_.verbose) {
-        const auto logFile = logging::Logger::Init(config_.root_dir);
+        const auto logFile = logging::Logger::Init(config_.log_dir);
     }
 
     auto log = config_.verbose ? logging::Logger::Get("app") : nullptr;
@@ -42,6 +42,8 @@ int Application::run() {
         auto actions = engine.evaluate(file);
         executor.execute(std::move(actions), file);
     }
+
+    logging::Logger::Shutdown();
 
     return 0;
 }
