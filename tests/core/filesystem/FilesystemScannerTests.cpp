@@ -6,14 +6,15 @@
 
 #include "core/filesystem/FilesystemScanner.hpp"
 #include "../tests/helpers/TestFilesystem.hpp"
+#include "../tests/core/filesystem/FilesystemScannerTest.hpp"
 
-TEST(FilesystemScannerTests, ConstructorAcceptsValidDirectory) {
+TEST_F(FilesystemScannerTest, ConstructorAcceptsValidDirectory) {
     auto temp = TestTree("scanner_valid");
     EXPECT_NO_THROW(FilesystemScanner scanner(temp.root));
 }
 
 
-TEST(FilesystemScannerTests, ConstructorRejectsNonExistentPath) {
+TEST_F(FilesystemScannerTest, ConstructorRejectsNonExistentPath) {
     auto fake = std::filesystem::temp_directory_path() / "does_not_exist";
 
     EXPECT_THROW(
@@ -23,7 +24,7 @@ TEST(FilesystemScannerTests, ConstructorRejectsNonExistentPath) {
 }
 
 
-TEST(FilesystemScannerTests, ConstructorRejectsFilePath) {
+TEST_F(FilesystemScannerTest, ConstructorRejectsFilePath) {
     auto tree = TestTree("scanner_file");
     auto file = tree.file("test.txt");
 
@@ -34,7 +35,7 @@ TEST(FilesystemScannerTests, ConstructorRejectsFilePath) {
 }
 
 
-TEST(FilesystemScannerTests, ConstructorNormalizesToAbsolutePath) {
+TEST_F(FilesystemScannerTest, ConstructorNormalizesToAbsolutePath) {
     auto temp = TestTree("scanner_relative");
 
     auto current = std::filesystem::current_path();
@@ -48,7 +49,7 @@ TEST(FilesystemScannerTests, ConstructorNormalizesToAbsolutePath) {
 }
 
 
-TEST(FilesystemScannerTests, ScanEmptyDirectoryProducesNoFiles) {
+TEST_F(FilesystemScannerTest, ScanEmptyDirectoryProducesNoFiles) {
     auto temp = TestTree("scanner_empty");
 
     FilesystemScanner scanner(temp.root);
@@ -59,7 +60,7 @@ TEST(FilesystemScannerTests, ScanEmptyDirectoryProducesNoFiles) {
 }
 
 
-TEST(FilesystemScannerTests, FindSingleFile) {
+TEST_F(FilesystemScannerTest, FindSingleFile) {
     auto temp = TestTree("test_scan_dir");
     auto file = temp.file("x.txt");
 
@@ -75,7 +76,7 @@ TEST(FilesystemScannerTests, FindSingleFile) {
 }
 
 
-TEST(FilesystemScannerTests, FindsAllFiles) {
+TEST_F(FilesystemScannerTest, FindsAllFiles) {
     auto temp = TestTree("find_files");
     temp.file("a.txt");
     auto br = temp.dir("dir");
@@ -92,7 +93,7 @@ TEST(FilesystemScannerTests, FindsAllFiles) {
 }
 
 
-TEST(FilesystemScannerTests, FileTypesAreCorrect) {
+TEST_F(FilesystemScannerTest, FileTypesAreCorrect) {
     auto temp = TestTree("find_files");
     temp.file("a.txt");
     auto br = temp.dir("dir");
@@ -115,7 +116,7 @@ TEST(FilesystemScannerTests, FileTypesAreCorrect) {
 }
 
 
-TEST(FilesystemScannerTests, RespectsMaximumDepth) {
+TEST_F(FilesystemScannerTest, RespectsMaximumDepth) {
     auto temp = TestTree("find_files");
     temp.file("a.txt");
     auto br = temp.dir("dir");
@@ -133,7 +134,7 @@ TEST(FilesystemScannerTests, RespectsMaximumDepth) {
 }
 
 
-TEST(FilesystemScannerTests, PathNormalizationDoesNotFailScan) {
+TEST_F(FilesystemScannerTest, PathNormalizationDoesNotFailScan) {
     TestTree tree("scanner_norm");
 
     tree.file("a.txt");
@@ -148,7 +149,7 @@ TEST(FilesystemScannerTests, PathNormalizationDoesNotFailScan) {
     EXPECT_TRUE(result.files[0].path.is_absolute());
 }
 
-TEST(FilesystemScannerTests, SmallTreeCompletesQuickly) {
+TEST_F(FilesystemScannerTest, SmallTreeCompletesQuickly) {
     TestTree tree("scanner_time");
 
     for (int i = 0; i < 50; ++i)
@@ -164,4 +165,51 @@ TEST(FilesystemScannerTests, SmallTreeCompletesQuickly) {
     EXPECT_LT(elapsed, std::chrono::milliseconds(100));
 }
 
+TEST_F(FilesystemScannerTest, CreatesLogs) {
+    auto temp = TestTree("find_files");
+    temp.file("a.txt");
+    auto br = temp.dir("dir");
+    temp.file(br, "b.txt");
 
+    ScanOptions ops;
+    ops.include_directories = true;
+    ops.logging = true;
+    ops.max_depth = 0;
+    FilesystemScanner scanner(temp.root, ops);
+    auto result = scanner.scan();
+
+    ASSERT_TRUE(std::filesystem::exists(logFile));
+
+    std::ifstream in(logFile);
+    ASSERT_TRUE(in.is_open());
+
+    std::string contents(
+        (std::istreambuf_iterator<char>(in)),
+        std::istreambuf_iterator<char>());
+
+    EXPECT_NE(contents.length(), 0);
+}
+
+TEST_F(FilesystemScannerTest, DoesNotCreateLogsOnRequest) {
+    auto temp = TestTree("find_files");
+    temp.file("a.txt");
+    auto br = temp.dir("dir");
+    temp.file(br, "b.txt");
+
+    ScanOptions ops;
+    ops.include_directories = true;
+    ops.logging = false;
+    FilesystemScanner scanner(temp.root, ops);
+    auto result = scanner.scan();
+
+    ASSERT_TRUE(std::filesystem::exists(logFile));
+
+    std::ifstream in(logFile);
+    ASSERT_TRUE(in.is_open());
+
+    std::string contents(
+        (std::istreambuf_iterator<char>(in)),
+        std::istreambuf_iterator<char>());
+
+    EXPECT_EQ(contents.length(), 0);
+}
