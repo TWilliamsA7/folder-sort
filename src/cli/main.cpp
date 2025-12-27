@@ -16,7 +16,7 @@ int main(int argc, char** argv) {
 }
 
 int run_cli(int argc, char** argv) {
-    CLI::App app{"File Managment Tool"};
+    CLI::App app{"File Management Tool"};
 
     AppConfig config;
 
@@ -37,12 +37,13 @@ int run_cli(int argc, char** argv) {
         ->check(CLI::ExistingDirectory);
 
     app.add_flag("-s,--symlink", config.follow_symlinks, "Enable Symlink Following");
-    app.add_flag("-h,--hidden", config.include_hidden, "Enable Inclusion of Hidden Elements");
+    app.add_flag("--hidden", config.include_hidden, "Enable Inclusion of Hidden Elements");
     app.add_flag("-p,--permission", config.allow_permission_errors, "Allow permissions errors during folder scan");
     app.add_flag("-d,--dir", config.include_directories, "Enable inclusion of directories in scan");
     app.add_flag("-a,--absolute", config.normalize_paths, "Disable normalization of paths");
     app.add_option("--max-depth", config.max_depth, "Specifies Maximum Depth of Search | -1 means no maximum");
 
+    app.get_formatter()->column_width(40);
 
     CLI11_PARSE(app, argc, argv);
 
