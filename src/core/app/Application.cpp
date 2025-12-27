@@ -26,7 +26,13 @@ int Application::run() {
 
     ScanOptions sc_options;
 
-    if (config_.verbose) sc_options.logging = true;
+    sc_options.logging = config_.verbose;
+    sc_options.follow_symlinks = config_.follow_symlinks;
+    sc_options.include_hidden = config_.include_hidden;
+    sc_options.allow_permission_errors = config_.allow_permission_errors;
+    sc_options.max_depth = config_.max_depth;
+    sc_options.include_directories = config_.include_directories;
+    sc_options.normalize_paths = config_.normalize_paths;
 
     FilesystemScanner scanner(config_.root_dir, sc_options);
     auto res = scanner.scan();
