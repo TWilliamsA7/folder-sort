@@ -2,6 +2,7 @@
 
 #include <gtest/gtest.h>
 #include <fstream>
+#include <iostream>
 
 #include "config/RuleFactory.hpp"
 #include "core/rules/RuleEngine.hpp"
@@ -39,7 +40,7 @@ TEST_F(FlowTest, RuleTriggersActions) {
 
     const std::string descr = actions.at(0)->describe(file);
 
-    ActionExecutor exec(/* dry_run=*/true);
+    ActionExecutor exec(/* dry_run=*/true, true);
 
     EXPECT_NO_THROW(exec.execute(std::move(actions), file));
 
@@ -54,4 +55,6 @@ TEST_F(FlowTest, RuleTriggersActions) {
 
     EXPECT_NE(contents.find(descr), std::string::npos)
         << "Actual contents: " << contents;
+
+    
 }
