@@ -36,6 +36,14 @@ int run_cli(int argc, char** argv) {
         ->needs(verbose)
         ->check(CLI::ExistingDirectory);
 
+    app.add_flag("-s,--symlink", config.follow_symlinks, "Enable Symlink Following");
+    app.add_flag("-h,--hidden", config.include_hidden, "Enable Inclusion of Hidden Elements");
+    app.add_flag("-p,--permission", config.allow_permission_errors, "Allow permissions errors during folder scan");
+    app.add_flag("-d,--dir", config.include_directories, "Enable inclusion of directories in scan");
+    app.add_flag("-a,--absolute", config.normalize_paths, "Disable normalization of paths");
+    app.add_option("--max-depth", config.max_depth, "Specifies Maximum Depth of Search | -1 means no maximum");
+
+
     CLI11_PARSE(app, argc, argv);
 
     Application application(config);

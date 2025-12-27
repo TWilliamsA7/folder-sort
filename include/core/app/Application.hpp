@@ -18,6 +18,16 @@ struct AppConfig {
     std::filesystem::path rules_file;
     bool dry_run{false};
     bool verbose{false}; // logging
+
+    // Scanner options
+    bool follow_symlinks = false;
+    bool include_hidden = false;
+    bool allow_permission_errors = true;
+    int max_depth = -1;
+
+    bool include_directories = false;
+    bool normalize_paths = true;
+
 };
 
 class Application {
