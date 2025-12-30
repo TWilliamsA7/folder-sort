@@ -5,6 +5,7 @@
 #include <string>
 #include <stdexcept>
 #include <yaml-cpp/yaml.h>
+#include "logging/Logger.hpp"
 
 class ConfigLoader {
     public:
