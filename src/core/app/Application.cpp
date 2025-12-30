@@ -41,6 +41,8 @@ int Application::run() {
         executor.execute(std::move(actions), file);
     }
 
+    engine.logRuleStats();
+
     log->info("Completed Execution");
     logging::Logger::Shutdown();
 
