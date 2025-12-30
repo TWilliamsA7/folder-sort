@@ -6,23 +6,20 @@ Application::Application(AppConfig config) : config_(config) {}
 
 
 int Application::run() {
+    const auto logFile = logging::Logger::Init(config_.log_dir, config_.verbose);
 
-    if (config_.verbose) {
-        const auto logFile = logging::Logger::Init(config_.log_dir);
-    }
-
-    auto log = config_.verbose ? logging::Logger::Get("app") : nullptr;
+    auto log = logging::Logger::Get("app");
 
     ConfigLoader rulesLoader(config_.rules_file.string());
     auto rule_yaml = rulesLoader.load();
-    if (log) log->info("Loaded Rules from {}", config_.rules_file.string());
+    log->info("Loaded Rules from {}", config_.rules_file.string());
 
     auto rules = RuleFactory::buildRules(rule_yaml);
     RuleEngine engine;
     for (auto& rule : rules) {
         engine.addRule(std::move(rule));
     }
-    if (log) log->info("Configured {} Rules", rules.size());
+    log->info("Configured {} Rules", rules.size());
 
     ScanOptions sc_options;
 
@@ -38,12 +35,12 @@ int Application::run() {
     auto res = scanner.scan();
 
     if (res.has_errors()) {
-        if (log) log->warn("{} errors occurred during the file scan", res.errors.size());
+        log->warn("{} errors occurred during the file scan", res.errors.size());
     }
 
     ActionExecutor executor(config_.dry_run, config_.verbose);
 
-    if (log) log->info("Starting rule evaluation and execution");
+    log->info("Starting rule evaluation and execution");
     for (auto file : res.files) {
         auto actions = engine.evaluate(file);
         executor.execute(std::move(actions), file);

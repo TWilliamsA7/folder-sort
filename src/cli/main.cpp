@@ -28,13 +28,12 @@ int run_cli(int argc, char** argv) {
         ->required()
         ->check(CLI::ExistingFile);
 
-    auto verbose = app.add_flag("-v,--verbose", config.verbose, "Enable Logging");
-    app.add_flag("--dry-run", config.dry_run, "Do not execute actions")
-        ->needs(verbose);
-
-    app.add_option("-l,--log", config.log_dir, "Log directory")
-        ->needs(verbose)
+    app.add_flag("-v,--verbose", config.verbose, "Enable Console Logging");
+    
+    app.add_option("-l,--log", config.log_dir, "Enables Logging and Specify Log Directory")
         ->check(CLI::ExistingDirectory);
+    
+    app.add_flag("--dry-run", config.dry_run, "Do not execute actions");
 
     app.add_flag("-s,--symlink", config.follow_symlinks, "Enable Symlink Following");
     app.add_flag("--hidden", config.include_hidden, "Enable Inclusion of Hidden Elements");
