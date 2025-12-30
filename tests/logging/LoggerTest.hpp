@@ -11,7 +11,7 @@ class LoggerTest : public ::testing::Test {
         std::filesystem::path logFile;
 
         void SetUp() override {
-            logFile = logging::Logger::InitForTests(logDir);
+            logFile = logging::Logger::InitForTests(logDir, true);
         }
 
         void TearDown() override {
