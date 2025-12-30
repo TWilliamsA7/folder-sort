@@ -33,7 +33,7 @@ TEST_F(FlowTest, RuleTriggersActions) {
     FileInfo file;
     file.path = "dog.txt";
 
-    auto actions = engine.evaluate(file);
+    auto actions = engine.evaluate(file, {});
 
     ASSERT_EQ(actions.size(), 1);
     ASSERT_EQ(actions.at(0)->type(), ActionType::MOVE);

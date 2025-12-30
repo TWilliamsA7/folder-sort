@@ -11,6 +11,6 @@ class DeleteAction: public Action {
         ActionType type() const override;
         const std::string describe() const override;
         const std::string describe(const FileInfo& file) const override;
-        void execute(const FileInfo& file) const override;
+        void execute(FileInfo& file) const override;
 
 };

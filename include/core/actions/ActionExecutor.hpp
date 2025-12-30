@@ -13,10 +13,10 @@ class ActionExecutor {
         explicit ActionExecutor(bool dry_run = false, bool verbose = false);
 
         // * Given an action, execute it
-        void execute(const Action&, const FileInfo&) const;
+        void execute(const Action&, FileInfo&) const;
 
         // * Given a vector of actions, execute each action
-        void execute(std::vector<std::unique_ptr<Action>>, const FileInfo&) const;
+        void execute(std::vector<std::unique_ptr<Action>>, FileInfo&) const;
 
     private:
         // * If True, no actions will actually take place

@@ -2,23 +2,64 @@
 
 #include "core/actions/RenameAction.hpp"
 
-RenameAction::RenameAction(std::string new_name) : Action(), new_name_(new_name) {}
+RenameAction::RenameAction(std::string pattern, int rule_file_count) : Action(), pattern_(pattern), count(rule_file_count) {
+    prepare_format();
+}
 
 ActionType RenameAction::type() const { return ActionType::RENAME; }
 
 const std::string RenameAction::describe() const {
-    return "Renaming [FILE] to " + new_name_;
+    return "Renaming [FILE] using pattern: " + pattern_;
 }
 
 const std::string RenameAction::describe(const FileInfo& file) const {
-    return "Renaming " + file.filename() + " to " + new_name_;
+    return "Renaming " + file.filename() + " to: " + createNewName(file);
 }
 
-void RenameAction::execute(const FileInfo& file) const {
+void RenameAction::execute(FileInfo& file) const {
+
+    const std::string name = createNewName(file);
+
     std::filesystem::rename(
         file.path,
-        file.path.parent_path() / new_name_
+        file.path.parent_path() / name
     );
 }
 
-std::string RenameAction::new_name() const { return new_name_; }
+const std::string RenameAction::createNewName(const FileInfo& file) const {
+    const std::string stem = file.path.stem().string();
+    std::string file_date; 
+    if (file.last_modified.has_value()) {
+        file_date = fmt::format("{:%Y-%m-%d-%H-%M-%S}", 
+            std::chrono::clock_cast<std::chrono::system_clock>(file.last_modified.value()));
+    }
+    std::string new_name = fmt::format(fmt::runtime(fmt_format_), stem, file_date, count);
+    new_name += file.extension();
+    return new_name;
+}
+
+void RenameAction::prepare_format() {
+    std::string pattern = pattern_;
+
+    // Replace {name} with {0} for fmt positional args
+    size_t namePos = pattern.find("{name}");
+    if (namePos != std::string::npos) {
+        pattern.replace(namePos, 6, "{0}");
+    }
+
+    // Replace {date} with {1} for fmt positional args
+    size_t datePos = pattern.find("{date}");
+    if (datePos != std::string::npos) {
+        pattern.replace(datePos, 6, "{1}");
+    }
+
+    // Replace {count} with {2} for fmt positional args
+    size_t countPos = pattern.find("{count}");
+    if (countPos != std::string::npos) {
+        pattern.replace(countPos, 7, "{2:03}");
+    }
+
+    fmt_format_ = pattern;
+}
+
+std::string RenameAction::pattern() const { return pattern_; }
