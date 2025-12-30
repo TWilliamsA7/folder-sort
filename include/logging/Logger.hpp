@@ -21,10 +21,10 @@ namespace logging {
         public:
 
             // Production init
-            static std::filesystem::path Init(const std::filesystem::path& logDir);
+            static std::filesystem::path Init(const std::filesystem::path& logDir, const bool use_console);
 
             // Test init (file only, immediate flush)
-            static std::filesystem::path InitForTests(const std::filesystem::path& logDir);
+            static std::filesystem::path InitForTests(const std::filesystem::path& logDir, const bool use_console);
 
             static void Shutdown();
 

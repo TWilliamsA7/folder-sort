@@ -17,7 +17,6 @@ struct ScanOptions {
 
     bool include_directories = false;
     bool normalize_paths = true;
-    bool logging = false;
 };
 
 class FilesystemScanner {

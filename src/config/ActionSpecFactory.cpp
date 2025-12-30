@@ -24,7 +24,7 @@ ActionSpec ActionSpecFactory::build(const YAML::Node& node) {
     }
 
     if (action == "delete") {
-        ActionSpec spec(ActionType::DELETE, {});
+        ActionSpec spec(ActionType::REMOVE, {});
         return spec;
     }
 

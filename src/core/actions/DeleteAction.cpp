@@ -4,7 +4,7 @@
 
 DeleteAction::DeleteAction() : Action() {}
 
-ActionType DeleteAction::type() const { return ActionType::DELETE; }
+ActionType DeleteAction::type() const { return ActionType::REMOVE; }
 
 const std::string DeleteAction::describe() const {
     return "[DELETE]";

@@ -21,7 +21,7 @@ std::unique_ptr<Action> ActionFactory::create(const ActionSpec& spec) {
             return std::make_unique<RenameAction>(it->second);
         }
 
-        case ActionType::DELETE: {
+        case ActionType::REMOVE: {
             return std::make_unique<DeleteAction>();
         }
 

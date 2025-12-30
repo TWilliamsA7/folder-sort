@@ -6,6 +6,7 @@
 #include <vector>
 #include <yaml-cpp/yaml.h>
 #include "core/rules/Rule.hpp"
+#include "logging/Logger.hpp"
 
 // * Static Class used to generate a set of rules from a YAML config
 class RuleFactory {
