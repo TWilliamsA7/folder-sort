@@ -12,8 +12,12 @@
 #include "core/actions/RenameAction.hpp"
 #include "core/actions/DeleteAction.hpp"
 
+// Logging Header
+#include "logging/Logger.hpp"
+
 
 class ActionFactory {
     public:
-        static std::unique_ptr<Action> create(const ActionSpec& spec);
+        static std::unique_ptr<Action> create(const ActionSpec& spec, const std::filesystem::path& root_dir);
+        static std::unique_ptr<Action> createMoveAction(const ActionSpec& spec, const std::filesystem::path& root_dir);
 };
