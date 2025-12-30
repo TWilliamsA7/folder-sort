@@ -7,20 +7,18 @@ namespace {
 }
 
 ActionExecutor::ActionExecutor(bool dry_run, bool verbose) : dry_run_(dry_run), verbose_(verbose) {
-    auto log = verbose ? logging::Logger::Get(kLoggerName) : nullptr;
+    auto log = logging::Logger::Get(kLoggerName);
 }
 
 void ActionExecutor::execute(const Action& action, const FileInfo& file) const {
+
+    auto log = logging::Logger::Get(kLoggerName);
     
-    if (verbose_) {
-        auto log = logging::Logger::Get(kLoggerName);
-        
-        if (dry_run_) {
-            log->info("[DRY RUN] {}", action.describe(file));
-            return;
-        } else {
-            log->info(action.describe(file));
-        }
+    if (dry_run_) {
+        log->info("[DRY RUN] {}", action.describe(file));
+        return;
+    } else {
+        log->info(action.describe(file));
     }
 
     action.execute(file);

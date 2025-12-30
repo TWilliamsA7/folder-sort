@@ -23,7 +23,7 @@ int Application::run() {
 
     ScanOptions sc_options;
 
-    sc_options.logging = config_.verbose;
+    sc_options.logging = config_.verbose || !config_.log_dir.empty();
     sc_options.follow_symlinks = config_.follow_symlinks;
     sc_options.include_hidden = config_.include_hidden;
     sc_options.allow_permission_errors = config_.allow_permission_errors;
