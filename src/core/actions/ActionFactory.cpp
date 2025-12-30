@@ -15,11 +15,7 @@ std::unique_ptr<Action> ActionFactory::create(const ActionSpec& spec, const std:
         }
 
         case ActionType::RENAME: {
-            auto it = spec.params.find("pattern");
-            if (it == spec.params.end()) {
-                throw std::runtime_error("RENAME action requires 'pattern' parameter");
-            }
-            return std::make_unique<RenameAction>(it->second);
+            return createRenameAction(spec);
         }
 
         case ActionType::REMOVE: {
@@ -34,7 +30,7 @@ std::unique_ptr<Action> ActionFactory::create(const ActionSpec& spec, const std:
     }
 }
 
-std::unique_ptr<Action> ActionFactory::createMoveAction(const ActionSpec& spec, const std::filesystem::path& root_dir) {
+std::unique_ptr<MoveAction> ActionFactory::createMoveAction(const ActionSpec& spec, const std::filesystem::path& root_dir) {
     auto log = logging::Logger::Get(kLoggerName);
     
     auto it = spec.params.find("to");
@@ -52,4 +48,15 @@ std::unique_ptr<Action> ActionFactory::createMoveAction(const ActionSpec& spec, 
     }
 
     return std::make_unique<MoveAction>(p);
+}
+
+std::unique_ptr<RenameAction> ActionFactory::createRenameAction(const ActionSpec& spec) {
+    auto log = logging::Logger::Get(kLoggerName);
+    
+    auto it = spec.params.find("pattern");
+    if (it == spec.params.end()) {
+        throw std::runtime_error("RENAME action requires 'pattern' parameter");
+    }
+
+    return std::make_unique<RenameAction>(it->second);
 }

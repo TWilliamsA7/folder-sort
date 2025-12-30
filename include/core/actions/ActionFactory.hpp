@@ -19,5 +19,6 @@
 class ActionFactory {
     public:
         static std::unique_ptr<Action> create(const ActionSpec& spec, const std::filesystem::path& root_dir);
-        static std::unique_ptr<Action> createMoveAction(const ActionSpec& spec, const std::filesystem::path& root_dir);
+        static std::unique_ptr<MoveAction> createMoveAction(const ActionSpec& spec, const std::filesystem::path& root_dir);
+        static std::unique_ptr<RenameAction> createRenameAction(const ActionSpec& spec);
 };
