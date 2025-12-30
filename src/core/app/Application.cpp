@@ -37,7 +37,7 @@ int Application::run() {
 
     log->info("Starting rule evaluation and execution");
     for (auto file : res.files) {
-        auto actions = engine.evaluate(file);
+        auto actions = engine.evaluate(file, config_.root_dir);
         executor.execute(std::move(actions), file);
     }
 
