@@ -14,9 +14,12 @@ std::vector<std::unique_ptr<Action>> RuleEngine::evaluate(const FileInfo& file, 
     for (const auto& rule : rules_) {
         if (!rule->matches(file)) continue;
 
+        
         for (const auto& spec : rule->actions()) {
-            result.push_back(ActionFactory::create(spec, root_dir));
+            result.push_back(ActionFactory::create(spec, root_dir, rule->files_touched));
         }
+
+        rule->files_touched++;
     }
     
     return result;

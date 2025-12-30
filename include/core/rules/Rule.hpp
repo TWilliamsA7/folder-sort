@@ -23,6 +23,8 @@ class Rule {
         const std::string name() const;
         const std::vector<ActionSpec>& actions() const;
 
+        int files_touched = 0;
+
     private:
         std::string name_;
         std::vector<std::unique_ptr<Condition>> conditions_;
