@@ -16,7 +16,7 @@ const std::string RenameAction::describe(const FileInfo& file) const {
     return "Renaming " + file.filename() + " to: " + createNewName(file);
 }
 
-void RenameAction::execute(const FileInfo& file) const {
+void RenameAction::execute(FileInfo& file) const {
 
     const std::string name = createNewName(file);
 

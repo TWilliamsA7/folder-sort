@@ -10,7 +10,7 @@ ActionExecutor::ActionExecutor(bool dry_run, bool verbose) : dry_run_(dry_run), 
     auto log = logging::Logger::Get(kLoggerName);
 }
 
-void ActionExecutor::execute(const Action& action, const FileInfo& file) const {
+void ActionExecutor::execute(const Action& action, FileInfo& file) const {
 
     auto log = logging::Logger::Get(kLoggerName);
     
@@ -24,7 +24,7 @@ void ActionExecutor::execute(const Action& action, const FileInfo& file) const {
     action.execute(file);
 }
 
-void ActionExecutor::execute(std::vector<std::unique_ptr<Action>> actions, const FileInfo& file) const {
+void ActionExecutor::execute(std::vector<std::unique_ptr<Action>> actions, FileInfo& file) const {
     for (const auto& action : actions) {
         execute(*action, file);
     }
