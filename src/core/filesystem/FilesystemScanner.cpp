@@ -27,10 +27,9 @@ FilesystemScanner::FilesystemScanner (
     }
 
 
-    if (options.logging) {
-        auto log = logging::Logger::Get(kLoggerName);
-        log->info("Initialized Filesystem Scanner on root: {}", canonical.string());
-    }
+    auto log = logging::Logger::Get(kLoggerName);
+    log->info("Initialized Filesystem Scanner on root: {}", canonical.string());
+
     root_ = canonical;
 }
 
@@ -179,6 +178,10 @@ ScanResult FilesystemScanner::scan() {
                 return result;
             ec.clear();
         }
+    }
+
+    if (result.has_errors()) {
+        log->warn("{} errors occurred during the file scan", result.errors.size());
     }
 
     log->info("Completed Scan");

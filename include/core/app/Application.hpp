@@ -17,7 +17,7 @@ struct AppConfig {
     std::filesystem::path log_dir;
     std::filesystem::path rules_file;
     bool dry_run{false};
-    bool verbose{false}; // logging
+    bool verbose{false}; // console logging
 
     // Scanner options
     bool follow_symlinks = false;

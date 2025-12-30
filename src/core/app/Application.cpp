@@ -12,18 +12,15 @@ int Application::run() {
 
     ConfigLoader rulesLoader(config_.rules_file.string());
     auto rule_yaml = rulesLoader.load();
-    log->info("Loaded Rules from {}", config_.rules_file.string());
 
     auto rules = RuleFactory::buildRules(rule_yaml);
     RuleEngine engine;
     for (auto& rule : rules) {
         engine.addRule(std::move(rule));
     }
-    log->info("Configured {} Rules", rules.size());
 
     ScanOptions sc_options;
 
-    sc_options.logging = config_.verbose || !config_.log_dir.empty();
     sc_options.follow_symlinks = config_.follow_symlinks;
     sc_options.include_hidden = config_.include_hidden;
     sc_options.allow_permission_errors = config_.allow_permission_errors;
@@ -34,9 +31,7 @@ int Application::run() {
     FilesystemScanner scanner(config_.root_dir, sc_options);
     auto res = scanner.scan();
 
-    if (res.has_errors()) {
-        log->warn("{} errors occurred during the file scan", res.errors.size());
-    }
+
 
     ActionExecutor executor(config_.dry_run, config_.verbose);
 
@@ -46,6 +41,7 @@ int Application::run() {
         executor.execute(std::move(actions), file);
     }
 
+    log->info("Completed Execution");
     logging::Logger::Shutdown();
 
     return 0;
