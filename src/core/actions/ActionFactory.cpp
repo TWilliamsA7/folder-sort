@@ -6,7 +6,7 @@ namespace {
     const char* kLoggerName = "app.action.factory";
 };
 
-std::unique_ptr<Action> ActionFactory::create(const ActionSpec& spec, const std::filesystem::path& root_dir) {
+std::unique_ptr<Action> ActionFactory::create(const ActionSpec& spec, const std::filesystem::path& root_dir, const int rule_file_count) {
     auto log = logging::Logger::Get(kLoggerName);
     
     switch (spec.type) {
@@ -15,7 +15,7 @@ std::unique_ptr<Action> ActionFactory::create(const ActionSpec& spec, const std:
         }
 
         case ActionType::RENAME: {
-            return createRenameAction(spec);
+            return createRenameAction(spec, rule_file_count);
         }
 
         case ActionType::REMOVE: {
@@ -50,7 +50,7 @@ std::unique_ptr<MoveAction> ActionFactory::createMoveAction(const ActionSpec& sp
     return std::make_unique<MoveAction>(p);
 }
 
-std::unique_ptr<RenameAction> ActionFactory::createRenameAction(const ActionSpec& spec) {
+std::unique_ptr<RenameAction> ActionFactory::createRenameAction(const ActionSpec& spec, const int rule_file_count) {
     auto log = logging::Logger::Get(kLoggerName);
     
     auto it = spec.params.find("pattern");
@@ -58,5 +58,5 @@ std::unique_ptr<RenameAction> ActionFactory::createRenameAction(const ActionSpec
         throw std::runtime_error("RENAME action requires 'pattern' parameter");
     }
 
-    return std::make_unique<RenameAction>(it->second);
+    return std::make_unique<RenameAction>(it->second, rule_file_count);
 }
