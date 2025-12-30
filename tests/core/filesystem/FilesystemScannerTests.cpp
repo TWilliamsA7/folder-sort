@@ -173,7 +173,6 @@ TEST_F(FilesystemScannerTest, CreatesLogs) {
 
     ScanOptions ops;
     ops.include_directories = true;
-    ops.logging = true;
     ops.max_depth = 0;
     FilesystemScanner scanner(temp.root, ops);
     auto result = scanner.scan();

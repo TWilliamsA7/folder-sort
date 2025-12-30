@@ -5,6 +5,8 @@
 #include "config/RuleFactory.hpp"
 
 TEST(RuleFactoryTests, BuildsValidRule) {
+    logging::Logger::InitForTests({}, false);
+
     const char* yaml = R"(
         rules:
             - name: "Archive Text Documents"
@@ -19,9 +21,13 @@ TEST(RuleFactoryTests, BuildsValidRule) {
     auto rules = RuleFactory::buildRules(root);
 
     EXPECT_EQ(rules.size(), 1);
+
+    logging::Logger::Shutdown();
 }
 
 TEST(RuleFactoryTests, ThrowsForMalformedRule) {
+    logging::Logger::InitForTests({}, false);
+
     const char* yaml = R"(
         rules:
             - name: "Archive Text Documents"
@@ -32,9 +38,13 @@ TEST(RuleFactoryTests, ThrowsForMalformedRule) {
 
     YAML::Node root = YAML::Load(yaml);
     EXPECT_THROW(RuleFactory::buildRules(root), std::exception);
+
+    logging::Logger::Shutdown();
 }
 
 TEST(RuleFactoryTests, BuildsUnnamedRule) {
+    logging::Logger::InitForTests({}, false);
+
     const char* yaml = R"(
         rules:
               - when:
@@ -48,9 +58,13 @@ TEST(RuleFactoryTests, BuildsUnnamedRule) {
     auto rules = RuleFactory::buildRules(root);
 
     EXPECT_EQ(rules.size(), 1);
+
+    logging::Logger::Shutdown();
 }
 
 TEST(RuleFactoryTests, BuildsMultiActionRules) {
+    logging::Logger::InitForTests({}, false);
+
     const char* yaml = R"(
         rules:
             - name: "Name and move images"
@@ -66,6 +80,10 @@ TEST(RuleFactoryTests, BuildsMultiActionRules) {
     YAML::Node root = YAML::Load(yaml);
     auto rules = RuleFactory::buildRules(root);
 
+    logging::Logger::Shutdown();
+
     ASSERT_EQ(rules.size(), 1);
     EXPECT_EQ(rules.at(0)->actions().size(), 2);
+
+    
 }
