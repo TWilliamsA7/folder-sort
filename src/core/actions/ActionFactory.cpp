@@ -26,8 +26,11 @@ std::unique_ptr<Action> ActionFactory::create(const ActionSpec& spec, const std:
             return std::make_unique<DeleteAction>();
         }
 
-        default:
+        default: {
+            log->error("Encountered Unknown ActionType!");
             throw std::runtime_error("Unknown ActionType");
+        }
+
     }
 }
 
