@@ -42,5 +42,19 @@ ActionSpec ActionSpecFactory::build(const YAML::Node& node) {
         return spec;
     }
 
+    if (action == "copy") {
+        if (!node["to"]) {
+            throw std::runtime_error("'copy' action requires 'to'");
+        }
+
+        const std::string target = node["to"].as<std::string>();
+
+        const std::unordered_map<std::string, std::string> params = {{ "to", target }};
+
+        ActionSpec spec(ActionType::COPY, params);
+
+        return spec;
+    }
+
     throw std::runtime_error("Unknown action type: " + action);
 }

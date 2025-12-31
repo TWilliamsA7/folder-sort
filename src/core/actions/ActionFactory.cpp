@@ -22,6 +22,10 @@ std::unique_ptr<Action> ActionFactory::create(const ActionSpec& spec, const std:
             return std::make_unique<DeleteAction>();
         }
 
+        case ActionType::COPY: {
+            return createCopyAction(spec, root_dir);
+        }
+
         default: {
             log->error("Encountered Unknown ActionType!");
             throw std::runtime_error("Unknown ActionType");
@@ -59,4 +63,24 @@ std::unique_ptr<RenameAction> ActionFactory::createRenameAction(const ActionSpec
     }
 
     return std::make_unique<RenameAction>(it->second, rule_file_count);
+}
+
+std::unique_ptr<CopyAction> ActionFactory::createCopyAction(const ActionSpec& spec, const std::filesystem::path& root_dir) {
+    auto log = logging::Logger::Get(kLoggerName);
+    
+    auto it = spec.params.find("to");
+    if (it == spec.params.end()) {
+        log->error("COPY action missing 'to' parameter");
+        throw std::runtime_error("COPY action requires 'to' parameter");
+    }
+
+    // Attempt to create a path using provided to parameter
+    std::filesystem::path p(it->second);
+
+    // If the path is absolute, use it as is
+    if (!p.is_absolute()) {
+        p = root_dir / it->second;
+    }
+
+    return std::make_unique<CopyAction>(p);
 }

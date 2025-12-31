@@ -9,7 +9,8 @@
 enum class ActionType {
     MOVE,
     RENAME,
-    REMOVE
+    REMOVE,
+    COPY
 };
 
 struct ActionSpec {
