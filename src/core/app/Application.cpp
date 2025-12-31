@@ -19,6 +19,11 @@ int Application::run() {
         engine.addRule(std::move(rule));
     }
 
+    auto catchActions = RuleFactory::buildCatchAllActions(rule_yaml);
+    for (auto& act : catchActions) {
+        engine.addCatchAllAction(act);
+    }
+
     ScanOptions sc_options;
 
     sc_options.follow_symlinks = config_.follow_symlinks;
