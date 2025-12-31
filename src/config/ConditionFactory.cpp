@@ -18,6 +18,10 @@ std::vector<std::unique_ptr<Condition>> ConditionFactory::build(const YAML::Node
         conditions.push_back(buildTimeCondition(node));
     }
 
+    if (node["filename"]) {
+        conditions.push_back(buildNameCondition(node));
+    }
+
     return conditions;
 }
 
@@ -37,7 +41,7 @@ std::unique_ptr<SizeCondition> ConditionFactory::buildSizeCondition(const YAML::
     std::string size_string = node["size"].as<std::string>();
     Comparison comp = size_string.find(">") != std::string::npos ? Comparison::GREATER : Comparison::LESS;
     char sign = comp == Comparison::GREATER ? '>' : '<';
-    int pos = size_string.find(sign);
+    size_t pos = size_string.find(sign);
 
     std::uintmax_t val = pos == std::string::npos ? getSize(size_string) : getSize(size_string.substr(pos + 1));
     return std::make_unique<SizeCondition>(val, comp);
@@ -47,10 +51,16 @@ std::unique_ptr<TimeCondition> ConditionFactory::buildTimeCondition(const YAML::
     std::string time_string = node["last-modified"].as<std::string>();
     TimeComp comp = time_string.find(">") != std::string::npos ? TimeComp::AFTER : TimeComp::BEFORE;
     char sign = comp == TimeComp::AFTER ? '>' : '<';
-    int pos = time_string.find(sign);
+    size_t pos = time_string.find(sign);
 
     std::chrono::system_clock::time_point val = pos == std::string::npos ? getTimePoint(time_string) : getTimePoint(time_string.substr(pos + 1));
     return std::make_unique<TimeCondition>(val, comp);
+}
+
+std::unique_ptr<NameCondition> ConditionFactory::buildNameCondition(const YAML::Node& node) {
+    std::string pattern_string = node["filename"].as<std::string>();
+    std::regex pattern(pattern_string);
+    return std::make_unique<NameCondition>(pattern);
 }
 
 std::uintmax_t ConditionFactory::getSize(std::string_view inp) {
@@ -109,7 +119,7 @@ std::chrono::system_clock::time_point ConditionFactory::getTimePoint(std::string
         throw std::runtime_error(fmt::format("Invalid timestamp format: '{}'", inp));
     }
 
-    std::chrono::year_month_day ymd{std::chrono::year{y}, std::chrono::month{m}, std::chrono::day{d}};
+    std::chrono::year_month_day ymd{std::chrono::year{y}, std::chrono::month{(unsigned) m}, std::chrono::day{(unsigned) d}};
     
     if (!ymd.ok()) {
         throw std::runtime_error(fmt::format("Invalid date: {}-{}-{}", y, m, d));

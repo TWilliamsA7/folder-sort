@@ -57,6 +57,21 @@ TEST(ConditionFactoryTests, CreatesExpectedTimeCondition) {
     EXPECT_GT(std::chrono::system_clock::now(), timeCond->tp());
 }
 
+TEST(ConditionFactoryTests, CreatesExpectedNameCondition) {
+    const char* yaml = R"(
+        filename: apple.+
+    )";
+
+    YAML::Node root = YAML::Load(yaml);
+    std::vector<std::unique_ptr<Condition>> conditions = ConditionFactory::build(root);
+
+    ASSERT_EQ(conditions.size(), 1);
+
+    NameCondition* nameCond = dynamic_cast<NameCondition*>(conditions.at(0).get());
+
+    ASSERT_NE(nameCond, nullptr); 
+}
+
 TEST(ConditionFactoryTests, ThrowsForInvalidSize) {
     const char* yaml = R"(
         size: "> 10A"

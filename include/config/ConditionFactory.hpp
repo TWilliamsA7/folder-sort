@@ -15,6 +15,7 @@
 #include "core/conditions/ExtensionCondition.hpp"
 #include "core/conditions/SizeCondition.hpp"
 #include "core/conditions/TimeCondition.hpp"
+#include "core/conditions/NameCondition.hpp"
 
 
 class ConditionFactory {
@@ -24,6 +25,7 @@ class ConditionFactory {
         static std::unique_ptr<ExtensionCondition> buildExtensionCondition(const YAML::Node& node);
         static std::unique_ptr<SizeCondition> buildSizeCondition(const YAML::Node& node);
         static std::unique_ptr<TimeCondition> buildTimeCondition(const YAML::Node& node);
+        static std::unique_ptr<NameCondition> buildNameCondition(const YAML::Node& node);
 
         static std::uintmax_t getSize(std::string_view inp);
         static std::chrono::system_clock::time_point getTimePoint(std::string_view inp);
