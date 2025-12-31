@@ -19,7 +19,6 @@ const std::string CopyAction::describe(const FileInfo& file) const {
 void CopyAction::execute(FileInfo& file) const {
     std::filesystem::path dest = destination_ / file.filename();
     std::filesystem::create_directories(dest.parent_path());
-    std::filesystem::rename(file.path, dest);
     std::filesystem::copy(
         file.path,
         dest,
