@@ -16,6 +16,11 @@ void RuleEngine::addRule(std::unique_ptr<Rule> rule) {
     rules_.push_back(std::move(rule));
 }
 
+void RuleEngine::addCatchAllAction(ActionSpec action) {
+    catch_all_actions_.push_back(std::move(action));
+}
+
+
 std::vector<std::unique_ptr<Action>> RuleEngine::evaluate(const FileInfo& file, const std::filesystem::path& root_dir) const {
 
     std::vector<std::unique_ptr<Action>> result;
@@ -30,6 +35,12 @@ std::vector<std::unique_ptr<Action>> RuleEngine::evaluate(const FileInfo& file, 
 
         rule->files_touched++;
     }
+
+    if (result.size() == 0) {
+        for (const auto& spec : catch_all_actions_) {
+            result.push_back(ActionFactory::create(spec, root_dir, unmatched_files_++));
+        }
+    }
     
     return result;
 }
@@ -38,5 +49,8 @@ void RuleEngine::logRuleStats(void) const {
     auto log = logging::Logger::Get(kLoggerName);
     for (const auto& rule : rules_) {
         log->info("Rule {} acted on {} files", rule->name(), rule->files_touched);
+    }
+    if (catch_all_actions_.size() > 0) {
+        log->info("{} files acted on by catch all actions", unmatched_files_);
     }
 }
