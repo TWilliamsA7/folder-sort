@@ -39,3 +39,21 @@ std::vector<std::unique_ptr<Rule>> RuleFactory::buildRules(const YAML::Node& roo
     log->info("Configured {} Rules", rules.size());
     return rules;
 }
+
+std::vector<ActionSpec> RuleFactory::buildCatchAllActions(const YAML::Node& root) {
+    auto log = logging::Logger::Get(kLoggerName);
+
+    std::vector<ActionSpec> actions;
+
+    // If there are no actions, return an empty vector
+    if (!root["catch"]) {
+        return actions;
+    }
+
+    for (const auto& actNode : root["catch"]) {
+        actions.push_back(ActionSpecFactory::build(actNode));
+    }
+
+    log->info("Configured {} Catch All Actions", actions.size());
+    return actions;
+}
