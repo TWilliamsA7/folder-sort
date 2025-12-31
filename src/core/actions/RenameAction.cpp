@@ -19,11 +19,14 @@ const std::string RenameAction::describe(const FileInfo& file) const {
 void RenameAction::execute(FileInfo& file) const {
 
     const std::string name = createNewName(file);
+    const std::filesystem::path new_path = file.path.parent_path() / name;
 
     std::filesystem::rename(
         file.path,
-        file.path.parent_path() / name
+        new_path
     );
+
+    file.path = new_path;
 }
 
 const std::string RenameAction::createNewName(const FileInfo& file) const {
