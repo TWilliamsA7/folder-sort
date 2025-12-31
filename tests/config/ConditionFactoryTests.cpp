@@ -39,6 +39,24 @@ TEST(ConditionFactoryTests, CreatesExpectedExtensionCondition) {
     EXPECT_EQ(extCond->extensions().size(), 2);
 }
 
+TEST(ConditionFactoryTests, CreatesExpectedTimeCondition) {
+    const char* yaml = R"(
+        last-modified: < 2020-12-30T12:00:00
+    )";
+
+    YAML::Node root = YAML::Load(yaml);
+    std::vector<std::unique_ptr<Condition>> conditions = ConditionFactory::build(root);
+
+    ASSERT_EQ(conditions.size(), 1);
+
+    TimeCondition* timeCond = dynamic_cast<TimeCondition*>(conditions.at(0).get());
+
+    ASSERT_NE(timeCond, nullptr);
+
+    EXPECT_EQ(timeCond->timeComparison(), TimeComp::BEFORE);
+    EXPECT_GT(std::chrono::system_clock::now(), timeCond->tp());
+}
+
 TEST(ConditionFactoryTests, ThrowsForInvalidSize) {
     const char* yaml = R"(
         size: "> 10A"

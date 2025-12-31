@@ -14,6 +14,10 @@ std::vector<std::unique_ptr<Condition>> ConditionFactory::build(const YAML::Node
         conditions.push_back(buildSizeCondition(node));
     }
 
+    if (node["last-modified"]) {
+        conditions.push_back(buildTimeCondition(node));
+    }
+
     return conditions;
 }
 
@@ -37,6 +41,16 @@ std::unique_ptr<SizeCondition> ConditionFactory::buildSizeCondition(const YAML::
 
     std::uintmax_t val = pos == std::string::npos ? getSize(size_string) : getSize(size_string.substr(pos + 1));
     return std::make_unique<SizeCondition>(val, comp);
+}
+
+std::unique_ptr<TimeCondition> ConditionFactory::buildTimeCondition(const YAML::Node& node) {
+    std::string time_string = node["last-modified"].as<std::string>();
+    TimeComp comp = time_string.find(">") != std::string::npos ? TimeComp::AFTER : TimeComp::BEFORE;
+    char sign = comp == TimeComp::AFTER ? '>' : '<';
+    int pos = time_string.find(sign);
+
+    std::chrono::system_clock::time_point val = pos == std::string::npos ? getTimePoint(time_string) : getTimePoint(time_string.substr(pos + 1));
+    return std::make_unique<TimeCondition>(val, comp);
 }
 
 std::uintmax_t ConditionFactory::getSize(std::string_view inp) {
@@ -84,4 +98,23 @@ std::uintmax_t ConditionFactory::getSize(std::string_view inp) {
 
     return static_cast<uintmax_t>(final_val);
 
+}
+
+std::chrono::system_clock::time_point ConditionFactory::getTimePoint(std::string_view inp) {
+    int y = 0, m = 1, d = 1, h = 1, min = 0, s = 0;
+
+    int read = std::sscanf(inp.data(), "%d-%d-%dT%d:%d:%d", &y, &m, &d, &h, &min, &s);
+
+    if (read < 1) {
+        throw std::runtime_error(fmt::format("Invalid timestamp format: '{}'", inp));
+    }
+
+    std::chrono::year_month_day ymd{std::chrono::year{y}, std::chrono::month{m}, std::chrono::day{d}};
+    
+    if (!ymd.ok()) {
+        throw std::runtime_error(fmt::format("Invalid date: {}-{}-{}", y, m, d));
+    }
+
+    auto tp = std::chrono::sys_days{ymd} + std::chrono::hours{h} + std::chrono::minutes{min} + std::chrono::seconds{s};
+    return tp;
 }
