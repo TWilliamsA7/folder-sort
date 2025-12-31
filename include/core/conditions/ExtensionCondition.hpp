@@ -1,4 +1,4 @@
-// include/core/rules/ExtensionCondition.hpp
+// include/core/conditions/ExtensionCondition.hpp
 
 #pragma once
 
