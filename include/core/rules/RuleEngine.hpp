@@ -19,6 +19,6 @@ class RuleEngine {
     private:
         std::vector<std::unique_ptr<Rule>> rules_;
         std::vector<ActionSpec> catch_all_actions_;
-        mutable int unmatched_files_;
+        mutable int unmatched_files_ = 0;
 
 };
