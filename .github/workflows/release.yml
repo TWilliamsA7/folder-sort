@@ -1,0 +1,95 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    name: Build (${{ matrix.name }})
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: windows-msvc
+            os: windows-latest
+            preset: msvc-ci
+            artifact: windows-x64
+          - name: linux-gcc
+            os: ubuntu-latest
+            preset: ci
+            artifact: linux-x64
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # Windows: MSVC environment
+      - name: Setup MSVC
+        if: matrix.os == 'windows-latest'
+        uses: ilammy/msvc-dev-cmd@v1
+
+      # Linux: build depenedencies
+      - name: Install Linux dependencies
+        if: matrix.os == 'ubuntu-latest'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+              ninja-build \
+              build-essential \
+              cmake
+
+      # Configure
+      - name: Configure (CMake Preset)
+        run: cmake --preset ${{ matrix.preset }}
+
+      # Build
+      - name: Build
+        run: cmake --build --preset ${{ matrix.preset }}
+
+      # Package Artifacts
+      - name: Package (Windows)
+        if: matrix.os == 'windows-latest'
+        shell: pwsh
+        run: |
+          $pkg = "package"
+          New-Item -ItemType Directory -Force -Path $pkg | Out-Null
+
+          Copy-Item build-msvc\Release\folder-sort.exe $pkg\
+          Copy-Item README.md $pkg\
+
+          Compress-Archive `
+              -Path "$pkg\*" `
+              -DestinationPath "folder-sort-${{ github.ref_name }}-${{ matrix.artifact }}.zip"
+
+      - name: Package (Linux)
+        if: matrix.os == 'ubuntu-latest'
+        shell: bash
+        run: |
+          mkdir -p package
+
+          cp build/folder-sort package/
+          cp README.md package/
+
+          chmod +x package/folder-sort
+
+          tar -czf \
+              folder-sort-${{ github.ref_name }}-${{ matrix.artifact }}.tar.gz \
+              -C package .
+
+      # Upload to GitHub Release
+      - name: Upload Release Assets
+        uses: softprops/action-gh-release@v2
+        if: startsWith(github.ref, 'refs/tags/')
+        with:
+          files: |
+            folder-sort-*.zip
+            folder-sort-*.tar.gz
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
