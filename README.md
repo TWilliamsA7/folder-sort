@@ -131,7 +131,7 @@ Check [examples](https://github.com/TWilliamsA7/folder-sort/tree/main/examples) 
 ## Logging & Safety
 
 - The full execution can be logged in both the console and also to a log file
-- Dry-run mode is ==recommended== before first use to verify behavior
+- Dry-run mode is recommended before first use to verify behavior
 - Rules are evaluated deterministically
 
 ## Project Structure
