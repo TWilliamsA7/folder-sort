@@ -1,0 +1,100 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+
+jobs:
+  # STAGE 1: Build for all platforms
+  build:
+    name: Build (${{ matrix.name }})
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: windows-msvc
+            os: windows-latest
+            preset: msvc-ci
+            artifact_suffix: windows-x64.zip
+          - name: linux-gcc
+            os: ubuntu-latest
+            preset: ci
+            artifact_suffix: linux-x64.tar.gz
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup MSVC
+        if: matrix.os == 'windows-latest'
+        uses: ilammy/msvc-dev-cmd@v1
+
+      - name: Install Linux dependencies
+        if: matrix.os == 'ubuntu-latest'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ninja-build build-essential cmake
+
+      - name: Configure and Build
+        run: |
+          cmake --preset ${{ matrix.preset }}
+          cmake --build --preset ${{ matrix.preset }}
+
+      # Packaging
+      - name: Package (Windows)
+        if: matrix.os == 'windows-latest'
+        shell: pwsh
+        run: |
+          $pkg = "package"
+          New-Item -ItemType Directory -Force -Path $pkg | Out-Null
+
+          Copy-Item build-msvc\src\Release\folder-sort.exe $pkg\
+          Copy-Item README.md $pkg\
+
+          $out = "folder-sort-${{ github.ref_name }}-${{ matrix.artifact_suffix }}"
+          Compress-Archive -Path "$pkg\*" -DestinationPath $out
+
+      - name: Package (Linux)
+        if: matrix.os == 'ubuntu-latest'
+        run: |
+          mkdir -p package
+          cp build/src/folder-sort README.md package/
+          chmod +x package/folder-sort
+
+          tar -czf \
+            folder-sort-${{ github.ref_name }}-${{ matrix.artifact_suffix }} \
+            -C package .
+
+      # Upload artifacts
+      - name: Upload to Workflow
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.name }}-binaries
+          path: folder-sort-${{ github.ref_name }}-${{ matrix.artifact_suffix }}
+
+  # STAGE 2: Create Release and attach all artifacts
+  release:
+    name: Create GitHub Release
+    needs: build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: ./artifacts
+          merge-multiple: true
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: ./artifacts/*
