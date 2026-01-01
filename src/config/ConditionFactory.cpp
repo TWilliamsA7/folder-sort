@@ -22,6 +22,10 @@ std::vector<std::unique_ptr<Condition>> ConditionFactory::build(const YAML::Node
         conditions.push_back(buildNameCondition(node));
     }
 
+    if (node["contains"]) {
+        conditions.push_back(buildContentCondition(node));
+    }
+
     return conditions;
 }
 
@@ -61,6 +65,12 @@ std::unique_ptr<NameCondition> ConditionFactory::buildNameCondition(const YAML::
     std::string pattern_string = node["filename"].as<std::string>();
     std::regex pattern(pattern_string);
     return std::make_unique<NameCondition>(pattern);
+}
+
+std::unique_ptr<ContentCondition> ConditionFactory::buildContentCondition(const YAML::Node& node) {
+    std::string pattern_string = node["contains"].as<std::string>();
+    std::regex pattern(pattern_string);
+    return std::make_unique<ContentCondition>(pattern);
 }
 
 std::uintmax_t ConditionFactory::getSize(std::string_view inp) {
