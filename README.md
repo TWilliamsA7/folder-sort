@@ -90,7 +90,7 @@ folder-sort -h
 
 Rules are defined in YAML and are applied from top-to-bottom on each entry scanned. A set of catch actions can be defined at the bottom of the file to act on any unmatched files.
 
-More examples can be found within the repository
+More examples can be found within the repository: [Here](https://github.com/TWilliamsA7/folder-sort/tree/main/examples)
 
 Example:
 
@@ -109,12 +109,12 @@ catch:
 
 ## Actions
 
-| Action | Description                    | YAML property                            |
-| ------ | ------------------------------ | ---------------------------------------- |
-| move   | Moves a file to a destination  | to: dest                                 |
-| copy   | Copies a file to a destination | to: dest                                 |
-| rename | Renames a file using a pattern | pattern: custom\_{name}\_{date}\_{count} |
-| delete | Delete a file                  | none                                     |
+| Action | Description                    | YAML property |
+| ------ | ------------------------------ | ------------- |
+| move   | Moves a file to a destination  | to            |
+| copy   | Copies a file to a destination | to            |
+| rename | Renames a file using a pattern | pattern       |
+| delete | Delete a file                  | none          |
 
 ## Conditions
 
@@ -126,7 +126,7 @@ catch:
 | name               | Match files using RegEx on their name                 | filename      |
 | content            | Match simple text files using RegEx on their contents | contains      |
 
-Check examples for reference on writing conditions
+Check [examples](https://github.com/TWilliamsA7/folder-sort/tree/main/examples) for reference on writing conditions
 
 ## Logging & Safety
 
