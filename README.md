@@ -122,9 +122,11 @@ catch:
 | ------------------ | ----------------------------------------------------- | ------------- |
 | extension          | Match files based on their extension                  | extension     |
 | size               | Match files based on their size (> or <)              | size          |
-| last modified time | Match files based on their last write time            | last-modified |
+| last modified time | Match files based on their last write time (> or <)   | last-modified |
 | name               | Match files using RegEx on their name                 | filename      |
 | content            | Match simple text files using RegEx on their contents | contains      |
+
+Check examples for reference on writing conditions
 
 ## Logging & Safety
 
