@@ -34,11 +34,34 @@
       "displayName": "MSYS2 UCRT64 (CI)",
       "inherits": "ucrt64-base",
       "binaryDir": "${sourceDir}/build"
+    },
+    {
+      "name": "msvc-base",
+      "hidden": true,
+      "generator": "Ninja",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release",
+        "BUILD_TESTS": "OFF",
+        "USE_SYSTEM_DEPENDENCIES": "OFF"
+      }
+    },
+    {
+      "name": "msvc-vscode",
+      "displayName": "MSVC (Release, VS Code)",
+      "inherits": "msvc-base",
+      "binaryDir": "${sourceDir}/build-msvc"
+    },
+    {
+      "name": "msvc-ci",
+      "displayName": "MSVC (CI)",
+      "inherits": "msvc-base",
+      "binaryDir": "${sourceDir}/build-msvc"
     }
   ],
   "buildPresets": [
     { "name": "vscode", "configurePreset": "ucrt64-vscode" },
-    { "name": "ci", "configurePreset": "ucrt64-ci" }
+    { "name": "ci", "configurePreset": "ucrt64-ci" },
+    { "name": "msvc", "configurePreset": "msvc-vscode" }
   ],
   "testPresets": [
     {
@@ -51,6 +74,13 @@
     {
       "name": "ci",
       "configurePreset": "ucrt64-ci",
+      "output": {
+        "outputOnFailure": true
+      }
+    },
+    {
+      "name": "msvc",
+      "configurePreset": "msvc-vscode",
       "output": {
         "outputOnFailure": true
       }
