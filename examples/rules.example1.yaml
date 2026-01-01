@@ -1,0 +1,36 @@
+rules:
+  - name: "Archive Old Text Documents"
+    when:
+      extension: ".txt"
+      last-modified: "< 2020-01-01T12:00:00" # YYYY-MM-DDTHH:MM:SS
+    then:
+      - action: move
+        to: "C:/user/me/Archives/" # Absolute paths can be used here
+      - action: rename
+        pattern: "text_{count}" # Uses count of files acted on: text_000.txt
+        
+  - name: "Organize Photos"
+    when:
+      extension: [".png", ".jpg", ".jpeg", ".heic"]
+    then:
+      - action: move
+        to: Photos/ # Relative Path to Root Directory
+
+  - name: "Clear Large Error Logs"
+    when:
+      contains: "error|ERROR" # Regular expression
+      extension: ".log"
+      size: "> 1MB" # Acceptable sizes MB, MiB, M | P to B
+    then:
+      - action: delete
+
+  - name: "Create Backup of English Assignments"
+    when:
+      filename: "enc\d{4}|ENC\d{4}" #Regular expression
+    then:
+      - action: copy
+        to: English/Backups/
+
+catch: # Executed if no matches are found in the above rules
+  - action: move
+    to: Unknown/
