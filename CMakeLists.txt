@@ -1,6 +1,11 @@
 cmake_minimum_required(VERSION 3.24) # 3.24+ handles FetchContent policies much better
 project(folder-sort VERSION 0.1 LANGUAGES CXX)
 
+if(MSVC)
+    # Static MSVC runtime for release binaries
+    set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
+endif()
+
 # --- Options ---
 option(BUILD_TESTS "Build unit tests" ON)
 option(USE_SYSTEM_DEPENDENCIES "Prefer system-installed libraries" OFF)
