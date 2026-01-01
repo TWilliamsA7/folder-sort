@@ -13,6 +13,7 @@ jobs:
   build:
     name: Build (${{ matrix.name }})
     runs-on: ${{ matrix.os }}
+
     strategy:
       fail-fast: false
       matrix:
@@ -20,11 +21,11 @@ jobs:
           - name: windows-msvc
             os: windows-latest
             preset: msvc-ci
-            artifact_name: folder-sort-${{ github.ref_name }}-windows-x64.zip
+            artifact_suffix: windows-x64.zip
           - name: linux-gcc
             os: ubuntu-latest
             preset: ci
-            artifact_name: folder-sort-${{ github.ref_name }}-linux-x64.tar.gz
+            artifact_suffix: linux-x64.tar.gz
 
     steps:
       - name: Checkout repository
@@ -45,46 +46,55 @@ jobs:
           cmake --preset ${{ matrix.preset }}
           cmake --build --preset ${{ matrix.preset }}
 
-      # Packaging Logic
+      # Packaging
       - name: Package (Windows)
         if: matrix.os == 'windows-latest'
         shell: pwsh
         run: |
-          mkdir package
-          copy build-msvc\Release\folder-sort.exe package\
-          copy README.md package\
-          Compress-Archive -Path "package\*" -DestinationPath "${{ matrix.artifact_name }}"
+          $pkg = "package"
+          New-Item -ItemType Directory -Force -Path $pkg | Out-Null
+
+          Copy-Item build-msvc\src\Release\folder-sort.exe $pkg\
+          Copy-Item README.md $pkg\
+
+          $out = "folder-sort-${{ github.ref_name }}-${{ matrix.artifact_suffix }}"
+          Compress-Archive -Path "$pkg\*" -DestinationPath $out
 
       - name: Package (Linux)
         if: matrix.os == 'ubuntu-latest'
         run: |
           mkdir -p package
-          cp build/folder-sort README.md package/
+          cp build/src/folder-sort README.md package/
           chmod +x package/folder-sort
-          tar -czf "${{ matrix.artifact_name }}" -C package .
 
-      # Upload to the workflow run (Temporary Storage)
+          tar -czf \
+            folder-sort-${{ github.ref_name }}-${{ matrix.artifact_suffix }} \
+            -C package .
+
+      # Upload artifacts
       - name: Upload to Workflow
         uses: actions/upload-artifact@v4
         with:
           name: ${{ matrix.name }}-binaries
-          path: ${{ matrix.artifact_name }}
+          path: folder-sort-${{ github.ref_name }}-${{ matrix.artifact_suffix }}
 
   # STAGE 2: Create Release and attach all artifacts
   release:
     name: Create GitHub Release
     needs: build
     runs-on: ubuntu-latest
+
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
       - name: Download all artifacts
         uses: actions/download-artifact@v4
         with:
           path: ./artifacts
           merge-multiple: true
 
-      - name: Create Release
+      - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
           files: ./artifacts/*
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
