@@ -85,7 +85,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: ${{ matrix.name }}-binaries
-          path: folder-sort-$VERSION-${{ matrix.artifact_suffix }}
+          path: folder-sort-${{ env.VERSION }}-${{ matrix.artifact_suffix }}
 
   # STAGE 2: Create Release and attach all artifacts
   release:
