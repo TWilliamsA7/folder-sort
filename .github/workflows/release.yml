@@ -66,7 +66,7 @@ jobs:
           Copy-Item build-msvc\src\folder-sort.exe $pkg\
           Copy-Item README.md $pkg\
 
-          $out = "folder-sort-$VERSION-${{ matrix.artifact_suffix }}"
+          $out = "folder-sort-${{ env.VERSION }}-${{ matrix.artifact_suffix }}"
           Compress-Archive -Path "$pkg\*" -DestinationPath $out
 
       - name: Package (Linux)
