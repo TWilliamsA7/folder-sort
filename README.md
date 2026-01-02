@@ -39,7 +39,7 @@ Manually organizing influxes of files (specifically directories like Downloads) 
 
 ### Prebuilt Binary
 
-Download the latest release from the GitHub Releases page and place the executable somewhere on your PATH.
+Download the latest release from the GitHub [Releases](https://github.com/TWilliamsA7/folder-sort/releases) page and place the executable somewhere on your PATH.
 
 ### Build From Source
 
