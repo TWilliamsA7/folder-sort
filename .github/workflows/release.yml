@@ -63,7 +63,7 @@ jobs:
           $pkg = "package"
           New-Item -ItemType Directory -Force -Path $pkg | Out-Null
 
-          Copy-Item build-msvc\src\Release\folder-sort.exe $pkg\
+          Copy-Item build-msvc\src\folder-sort.exe $pkg\
           Copy-Item README.md $pkg\
 
           $out = "folder-sort-$VERSION-${{ matrix.artifact_suffix }}"
