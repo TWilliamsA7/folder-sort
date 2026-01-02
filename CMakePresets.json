@@ -61,7 +61,8 @@
   "buildPresets": [
     { "name": "vscode", "configurePreset": "ucrt64-vscode" },
     { "name": "ci", "configurePreset": "ucrt64-ci" },
-    { "name": "msvc", "configurePreset": "msvc-vscode" }
+    { "name": "msvc-vscode", "configurePreset": "msvc-vscode" },
+    { "name": "msvc-ci", "configurePreset": "msvc-ci" }
   ],
   "testPresets": [
     {

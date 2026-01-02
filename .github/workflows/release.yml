@@ -4,6 +4,11 @@ on:
   push:
     tags:
       - "v*"
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Release version (e.g. v1.0.0)"
+        required: false
 
 permissions:
   contents: write
@@ -13,6 +18,8 @@ jobs:
   build:
     name: Build (${{ matrix.name }})
     runs-on: ${{ matrix.os }}
+    env:
+      VERSION: ${{ github.event.inputs.version || github.ref_name }}
 
     strategy:
       fail-fast: false
@@ -21,10 +28,12 @@ jobs:
           - name: windows-msvc
             os: windows-latest
             preset: msvc-ci
+            build_preset: msvc-ci
             artifact_suffix: windows-x64.zip
           - name: linux-gcc
             os: ubuntu-latest
-            preset: ci
+            preset: ucrt64-ci
+            build_preset: ci
             artifact_suffix: linux-x64.tar.gz
 
     steps:
@@ -44,7 +53,7 @@ jobs:
       - name: Configure and Build
         run: |
           cmake --preset ${{ matrix.preset }}
-          cmake --build --preset ${{ matrix.preset }}
+          cmake --build --preset ${{ matrix.build_preset }}
 
       # Packaging
       - name: Package (Windows)
@@ -57,7 +66,7 @@ jobs:
           Copy-Item build-msvc\src\Release\folder-sort.exe $pkg\
           Copy-Item README.md $pkg\
 
-          $out = "folder-sort-${{ github.ref_name }}-${{ matrix.artifact_suffix }}"
+          $out = "folder-sort-$VERSION-${{ matrix.artifact_suffix }}"
           Compress-Archive -Path "$pkg\*" -DestinationPath $out
 
       - name: Package (Linux)
@@ -68,7 +77,7 @@ jobs:
           chmod +x package/folder-sort
 
           tar -czf \
-            folder-sort-${{ github.ref_name }}-${{ matrix.artifact_suffix }} \
+            folder-sort-$VERSION-${{ matrix.artifact_suffix }} \
             -C package .
 
       # Upload artifacts
