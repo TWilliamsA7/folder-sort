@@ -9,11 +9,13 @@ ActionType MoveAction::type() const { return ActionType::MOVE; }
 std::filesystem::path MoveAction::destination() const { return destination_; }
 
 const std::string MoveAction::describe() const {
-    return "Move to " + destination_.string();
+    const auto utf8 = destination_.u8string();
+    return "Move to " + std::string(utf8.begin(), utf8.end());
 }
 
 const std::string MoveAction::describe(const FileInfo& file) const {
-    return "Move " + file.filename() + " to " + destination_.string();
+    const auto utf8 = destination_.u8string();
+    return "Move " + file.filename() + " to " + std::string(utf8.begin(), utf8.end());
 }
 
 void MoveAction::execute(FileInfo& file) const {

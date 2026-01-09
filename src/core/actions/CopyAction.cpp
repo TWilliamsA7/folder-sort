@@ -9,11 +9,13 @@ ActionType CopyAction::type() const { return ActionType::MOVE; }
 std::filesystem::path CopyAction::destination() const { return destination_; }
 
 const std::string CopyAction::describe() const {
-    return "Copy to " + destination_.string();
+    const auto utf8 = destination_.u8string();
+    return "Copy to " + std::string(utf8.begin(), utf8.end());
 }
 
 const std::string CopyAction::describe(const FileInfo& file) const {
-    return "Copy " + file.filename() + " to " + destination_.string();
+    const auto utf8 = destination_.u8string();
+    return "Copy " + file.filename() + " to " + std::string(utf8.begin(), utf8.end());
 }
 
 void CopyAction::execute(FileInfo& file) const {

@@ -11,7 +11,8 @@ const std::string DeleteAction::describe() const {
 };
 
 const std::string DeleteAction::describe(const FileInfo& file) const {
-    return "Deleting " + file.path.string();
+    const auto utf8 = file.path.u8string();
+    return "Deleting " + std::string(utf8.begin(), utf8.end());
 };
 
 void DeleteAction::execute(FileInfo& file) const {
