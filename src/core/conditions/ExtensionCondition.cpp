@@ -17,8 +17,14 @@ ExtensionCondition::ExtensionCondition(std::vector<std::string> extensions) {
 
 bool ExtensionCondition::check(const FileInfo& file) const {
 
+    std::string file_extension = file.extension();
+
+    std::transform(file_extension.begin(), file_extension.end(), file_extension.begin(), [](unsigned char c){ 
+        return std::tolower(c);
+    });
+
     for (std::string extension : extensions_) {
-        if (file.extension() == extension)
+        if (file_extension == extension)
             return true;
     }
     return false;
