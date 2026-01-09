@@ -100,11 +100,12 @@ ScanResult FilesystemScanner::scan() {
         }
 
         const auto current_path = entry.path();
+        const auto utf8 = current_path.u8string();
         bool skip_content = false;
 
         // Depth control
         if (options_.max_depth >= 0 && it.depth() > options_.max_depth) {
-            log->info("Skipped Entry {} | Exceeded Maximum Scan Depth", current_path.string());
+            log->info("Skipped Entry {} | Exceeded Maximum Scan Depth", std::string(utf8.begin(), utf8.end()));
             if (entry.is_directory()) {
                 it.disable_recursion_pending();
             }
@@ -116,7 +117,7 @@ ScanResult FilesystemScanner::scan() {
 
         // Symlink policy
         if (!skip_content && type == FileType::Symlink && !options_.follow_symlinks) {
-            log->warn("Skipped Entry {} | Encountered Symlink", current_path.string());
+            log->warn("Skipped Entry {} | Encountered Symlink", std::string(utf8.begin(), utf8.end()));
             result.errors.push_back({
                 current_path,
                 ScanErrorType::ReparsePoint,
@@ -128,7 +129,7 @@ ScanResult FilesystemScanner::scan() {
 
         // Hidden files
         if (!skip_content && !options_.include_hidden && fs_platform::is_hidden(current_path)) {
-            log->info("Skipped Entry {} | Entry is Hidden", current_path.string());
+            log->info("Skipped Entry {} | Entry is Hidden", std::string(utf8.begin(), utf8.end()));
             if (entry.is_directory()) {
                 it.disable_recursion_pending();
             }
@@ -149,7 +150,7 @@ ScanResult FilesystemScanner::scan() {
                 std::error_code size_ec;
                 info.size = std::filesystem::file_size(current_path, size_ec);
                 if (size_ec) {
-                    log->warn("Entry {} | Failed to read size | {}", current_path.string(), size_ec.message());
+                    log->warn("Entry {} | Failed to read size | {}", std::string(utf8.begin(), utf8.end()), size_ec.message());
                     result.errors.push_back({ current_path, map_error(size_ec), size_ec });
                     if (!options_.allow_permission_errors)
                         return result;
@@ -159,13 +160,13 @@ ScanResult FilesystemScanner::scan() {
             std::error_code time_ec;
             info.last_modified = std::filesystem::last_write_time(current_path, time_ec);
             if (time_ec) {
-                log->warn("Entry {} | Failed to last write time | {}", current_path.string(), time_ec.message());
+                log->warn("Entry {} | Failed to last write time | {}", std::string(utf8.begin(), utf8.end()), time_ec.message());
                 result.errors.push_back({ current_path, map_error(time_ec), time_ec });
                 if (!options_.allow_permission_errors)
                     return result;
             }
 
-            log->info("Scanned Entry {}", current_path.string());
+            log->info("Scanned Entry {}", std::string(utf8.begin(), utf8.end()));
             result.files.push_back(std::move(info));
         }
 
