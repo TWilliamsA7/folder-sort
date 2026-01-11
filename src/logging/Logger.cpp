@@ -31,7 +31,9 @@ namespace logging {
             logPath = logDir / filename;
     
             // 3. Setup File Sink
-            auto fileSink = std::make_shared<spdlog::sinks::basic_file_sink_mt>(logPath.string(), true);
+            const auto utf8 = logPath.u8string();
+            const std::string logPathString = std::string(utf8.begin(), utf8.end());
+            auto fileSink = std::make_shared<spdlog::sinks::basic_file_sink_mt>(logPathString, true);
             fileSink->set_pattern(prefix == "test" ? "[%n] [%l] %v" : "[%Y-%m-%d %T] [%n] [%l] %v");
             g_sinks.push_back(fileSink);
         }

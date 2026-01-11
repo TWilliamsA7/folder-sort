@@ -10,7 +10,8 @@ int Application::run() {
 
     auto log = logging::Logger::Get("app");
 
-    ConfigLoader rulesLoader(config_.rules_file.string());
+    const auto rulesPath = config_.rules_file.u8string();
+    ConfigLoader rulesLoader(std::string(rulesPath.begin(), rulesPath.end()));
     auto rule_yaml = rulesLoader.load();
 
     auto rules = RuleFactory::buildRules(rule_yaml);

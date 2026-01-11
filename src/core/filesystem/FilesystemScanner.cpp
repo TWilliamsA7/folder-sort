@@ -28,7 +28,8 @@ FilesystemScanner::FilesystemScanner (
 
 
     auto log = logging::Logger::Get(kLoggerName);
-    log->info("Initialized Filesystem Scanner on root: {}", canonical.string());
+    const auto rootString = canonical.u8string();
+    log->info("Initialized Filesystem Scanner on root: {}", std::string(rootString.begin(), rootString.end()));
 
     root_ = canonical;
 }
