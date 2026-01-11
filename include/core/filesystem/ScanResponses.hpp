@@ -37,8 +37,14 @@ struct FileInfo {
     std::optional<std::uintmax_t> size;
     std::optional<std::filesystem::file_time_type> last_modified;
 
-    std::string filename() const { return path.filename().string(); }
-    std::string extension() const { return path.extension().string(); }
+    std::string filename() const { 
+        const auto utf8 = path.filename().u8string();
+        return std::string(utf8.begin(), utf8.end()); 
+    }
+    std::string extension() const { 
+        const auto utf8 = path.extension().u8string();
+        return std::string(utf8.begin(), utf8.end()); 
+    }
 };
 
 struct ScanResult {

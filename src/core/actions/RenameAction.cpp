@@ -30,7 +30,8 @@ void RenameAction::execute(FileInfo& file) const {
 }
 
 const std::string RenameAction::createNewName(const FileInfo& file) const {
-    const std::string stem = file.path.stem().string();
+    const auto utf8 = file.path.stem().u8string();
+    const std::string stem = std::string(utf8.begin(), utf8.end());
     std::string file_date; 
     if (file.last_modified.has_value()) {
         file_date = fmt::format("{:%Y-%m-%d-%H-%M-%S}", 
